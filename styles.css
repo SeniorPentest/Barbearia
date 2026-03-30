@@ -1507,8 +1507,4 @@ select, input, textarea { font-family: inherit; }
     .values-grid { grid-template-columns: 1fr 1fr; }
     .loyalty-card { width: 100%; }
 
-    .snacks-carousel-wrapper { padding: 0; }
-    .snack-card { width: 100%; }
-    .carousel-btn,
-    .carousel-dots { display: none; }
 }
