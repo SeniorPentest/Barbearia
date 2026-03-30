@@ -27,7 +27,8 @@ function initCarousel() {
 
     const cards = carousel.querySelectorAll('.snack-card');
     const totalSlides = cards.length;
-    const mobileQuery = window.matchMedia('(max-width: 700px)');
+    const carouselMobileBreakpoint = 700;
+    const mobileQuery = window.matchMedia(`(max-width: ${carouselMobileBreakpoint}px)`);
 
     // Create dots
     if (dotsContainer) {
@@ -45,13 +46,10 @@ function initCarousel() {
     function updateCarousel() {
         if (mobileQuery.matches) {
             carousel.style.transform = 'none';
-            if (prevBtn) prevBtn.disabled = true;
-            if (nextBtn) nextBtn.disabled = true;
-            return;
+        } else {
+            const cardWidth = cards[0].offsetWidth + 24; // card width + gap
+            carousel.style.transform = `translateX(-${currentSlide * cardWidth}px)`;
         }
-
-        const cardWidth = cards[0].offsetWidth + 24; // card width + gap
-        carousel.style.transform = `translateX(-${currentSlide * cardWidth}px)`;
 
         // Update dots
         if (dotsContainer) {
@@ -62,8 +60,8 @@ function initCarousel() {
         }
 
         // Update button states
-        if (prevBtn) prevBtn.disabled = currentSlide === 0;
-        if (nextBtn) nextBtn.disabled = currentSlide === totalSlides - 1;
+        if (prevBtn) prevBtn.disabled = mobileQuery.matches || currentSlide === 0;
+        if (nextBtn) nextBtn.disabled = mobileQuery.matches || currentSlide === totalSlides - 1;
     }
 
     function goToSlide(index) {
