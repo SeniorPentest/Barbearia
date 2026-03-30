@@ -1489,6 +1489,15 @@ select, input, textarea { font-family: inherit; }
 
     .plans-grid { grid-template-columns: 1fr; }
     .compliance-seals { grid-template-columns: 1fr 1fr; }
+
+    .snacks-carousel-wrapper { padding: 0; }
+    .snacks-carousel {
+        flex-wrap: wrap;
+        overflow: visible;
+    }
+    .snack-card { width: 100%; }
+    .carousel-btn,
+    .carousel-dots { display: none; }
 }
 
 @media (max-width: 480px) {
@@ -1498,15 +1507,8 @@ select, input, textarea { font-family: inherit; }
     .values-grid { grid-template-columns: 1fr 1fr; }
     .loyalty-card { width: 100%; }
 
-    /* Carousel mobile adjustments */
-    .snacks-carousel-wrapper {
-        padding: 0 40px;
-    }
-    .snack-card {
-        width: 100%;
-    }
-    .carousel-btn {
-        width: 36px;
-        height: 36px;
-    }
+    .snacks-carousel-wrapper { padding: 0; }
+    .snack-card { width: 100%; }
+    .carousel-btn,
+    .carousel-dots { display: none; }
 }

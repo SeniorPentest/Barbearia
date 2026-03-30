@@ -29,6 +29,14 @@ function initCarousel() {
 
     // Update carousel position
     function updateCarousel() {
+        const isMobile = window.innerWidth <= 700;
+        if (isMobile) {
+            carousel.style.transform = 'none';
+            if (prevBtn) prevBtn.disabled = true;
+            if (nextBtn) nextBtn.disabled = true;
+            return;
+        }
+
         const cardWidth = cards[0].offsetWidth + 24; // card width + gap
         carousel.style.transform = `translateX(-${currentSlide * cardWidth}px)`;
 
@@ -67,44 +75,6 @@ function initCarousel() {
     // Event listeners
     if (prevBtn) prevBtn.addEventListener('click', prevSlide);
     if (nextBtn) nextBtn.addEventListener('click', nextSlide);
-
-    // Auto-play carousel
-    let autoplayInterval = setInterval(nextSlide, 4000);
-
-    // Pause autoplay on hover
-    if (carouselWrapper) {
-        carouselWrapper.addEventListener('mouseenter', () => {
-            clearInterval(autoplayInterval);
-        });
-
-        carouselWrapper.addEventListener('mouseleave', () => {
-            autoplayInterval = setInterval(nextSlide, 4000);
-        });
-    }
-
-    // Loop carousel
-    function loopCarousel() {
-        if (currentSlide === totalSlides - 1) {
-            currentSlide = 0;
-        } else {
-            currentSlide++;
-        }
-        updateCarousel();
-    }
-
-    // Replace simple nextSlide with looping version for autoplay
-    clearInterval(autoplayInterval);
-    autoplayInterval = setInterval(loopCarousel, 4000);
-
-    if (carouselWrapper) {
-        carouselWrapper.addEventListener('mouseenter', () => {
-            clearInterval(autoplayInterval);
-        });
-
-        carouselWrapper.addEventListener('mouseleave', () => {
-            autoplayInterval = setInterval(loopCarousel, 4000);
-        });
-    }
 
     // Handle window resize
     window.addEventListener('resize', updateCarousel);
