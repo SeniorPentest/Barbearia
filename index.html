@@ -51,9 +51,17 @@
             <div class="section-header">
                 <h2>Snacks funcionais e <span class="text-accent">saborosos</span></h2>
             </div>
+ codex/refactor-init-carousel-function
+            <div class="snacks-carousel-wrapper carousel-wrapper">
+                <button class="carousel-btn carousel-btn-prev" aria-label="Anterior">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+                </button>
+                <div class="snacks-carousel carousel-track">
+
             <div class="snacks-carousel-wrapper">
                 <button class="carousel-btn carousel-btn-prev">‹</button>
                 <div class="snacks-carousel">
+ main
                     <div class="snack-card">
                         <div class="snack-card-img"><img src="barra vermelha.png" alt="Barra Guaraná"></div>
                         <h3>Guaraná & Cacau</h3>
@@ -80,14 +88,52 @@
                         <p>R$ 12,90</p>
                     </div>
                 </div>
+ codex/refactor-init-carousel-function
+                <button class="carousel-btn carousel-btn-next" aria-label="Próximo">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+                </button>
+                <div class="carousel-dots"></div>
+            </div>
+            <div class="section-cta">
+                <a href="#contact" class="btn btn-primary">Ver todos os conteúdos</a>
+            </div>
+
                 <button class="carousel-btn carousel-btn-next">›</button>
             </div>
             <div class="carousel-dots"></div>
+ main
         </div>
     </section>
 
     <section id="values" class="values" style="background:#780313; padding: 80px 0;">
         <div class="container">
+ codex/refactor-init-carousel-function
+            <div class="section-header">
+                <span class="section-tag">Nossos Pilares</span>
+                <h2 style="color:#fff;">O que nos <span style="color:#fff;">move</span></h2>
+                <p class="section-desc" style="color:#fff;">Comprometidos com qualidade, inovação e a melhor nutrição para estudantes.</p>
+            </div>
+            <div class="values-wrapper carousel-wrapper">
+                <button class="carousel-btn carousel-btn-prev" aria-label="Anterior">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+                </button>
+                <div class="values-grid values-carousel carousel-track">
+                    <div class="value-card" style="background:#F5EFE0;">
+                        <div class="value-icon">🎯</div>
+                        <h3>Missão</h3>
+                        <p>Oferecer snacks funcionais saudáveis e acessíveis que contribuam para o desempenho físico e mental de estudantes.</p>
+                    </div>
+                    <div class="value-card" style="background:#F5EFE0;">
+                        <div class="value-icon">🔭</div>
+                        <h3>Visão</h3>
+                        <p>Tornar-se referência nacional em alimentação funcional voltada ao público universitário até 2030.</p>
+                    </div>
+                    <div class="value-card" style="background:#F5EFE0;">
+                        <div class="value-icon">💡</div>
+                        <h3>Valores</h3>
+                        <p>Atuar com transparência, inovação e sustentabilidade, garantindo nutrição de alta performance com foco total na jornada do cliente.</p>
+                    </div>
+
             <div class="values-grid">
                 <div class="value-card" style="background:#F5EFE0;">
                     <div class="value-icon" style="font-size: 2.5rem; margin-bottom: 15px;">🎯</div>
@@ -103,13 +149,82 @@
                     <div class="value-icon" style="font-size: 2.5rem; margin-bottom: 15px;">💡</div>
                     <h3>Valores</h3>
                     <p>Atuar com transparência, inovação e sustentabilidade, garantindo nutrição de alta performance.</p>
+ main
                 </div>
+                <button class="carousel-btn carousel-btn-next" aria-label="Próximo">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+                </button>
+                <div class="carousel-dots"></div>
             </div>
         </div>
     </section>
 
     <section id="club-tiers" class="club-tiers">
         <div class="container">
+ codex/refactor-init-carousel-function
+            <div class="section-header">
+                <span class="section-tag">Nosso Clube</span>
+                <h2>Escolha seu <span class="text-accent">plano</span></h2>
+                <p class="section-desc">Três níveis de benefícios para você aproveitar ao máximo a experiência Vie FIVE.</p>
+            </div>
+            <div class="plans-wrapper carousel-wrapper">
+                <button class="carousel-btn carousel-btn-prev" aria-label="Anterior">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+                </button>
+                <div class="plans-grid plans-carousel carousel-track">
+                    <!-- Prata -->
+                    <div class="plan-card">
+                        <p class="plan-name">ESSENCIAL</p>
+                        <div class="plan-price">
+                            <span class="plan-currency">R$</span>
+                            <span class="plan-amount">18,50</span>
+                            <span class="plan-period">/mês</span>
+                        </div>
+                        <ul class="plan-features">
+                            <li>4 snacks selecionados</li>
+                            <li>Frete Grátis</li>
+                            <li>5% de desconto (Acima de R$30)</li>
+                            <li>Newsletter mensal</li>
+                        </ul>
+                        <a href="#contact" class="btn btn-outline-dark">Assinar</a>
+                    </div>
+                    <!-- Ouro -->
+                    <div class="plan-card plan-card-featured">
+                        <span class="plan-badge">Mais popular</span>
+                        <p class="plan-name">ESTRATÉGICO</p>
+                        <div class="plan-price">
+                            <span class="plan-currency">R$</span>
+                            <span class="plan-amount">24,90</span>
+                            <span class="plan-period">/mês</span>
+                        </div>
+                        <ul class="plan-features">
+                            <li>4 snacks selecionados</li>
+                            <li>1 bebida selecionada</li>
+                            <li>Frete Grátis</li>
+                            <li>10% de desconto (Acima de R$60)</li>
+                            <li>Newsletter semanal</li>
+                        </ul>
+                        <a href="#contact" class="btn btn-outline-dark" style="background:#fff;color:var(--red);">Assinar</a>
+                    </div>
+                    <!-- Diamante -->
+                    <div class="plan-card">
+                        <p class="plan-name">PREMIUM</p>
+                        <div class="plan-price">
+                            <span class="plan-currency">R$</span>
+                            <span class="plan-amount">59,90</span>
+                            <span class="plan-period">/mês</span>
+                        </div>
+                        <ul class="plan-features">
+                            <li>6 produtos selecionados</li>
+                            <li>Acesso Privilegiado aos lançamentos</li>
+                            <li>Frete Grátis</li>
+                            <li>20% de desconto (Acima de R$100)</li>
+                            <li>Newsletter semanal</li>
+                            <li>Acesso Exclusivo aos sabores secretos</li>
+                        </ul>
+                        <a href="#contact" class="btn btn-primary">Assinar</a>
+                    </div>
+
             <div class="plans-grid">
                 <div class="plan-card">
                     <p class="plan-name">ESSENCIAL</p>
@@ -126,7 +241,12 @@
                     <p class="plan-name">PREMIUM</p>
                     <div class="plan-price"><h3>R$ 59,90/mês</h3></div>
                     <a href="#contact" class="btn btn-primary">Assinar</a>
+ main
                 </div>
+                <button class="carousel-btn carousel-btn-next" aria-label="Próximo">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+                </button>
+                <div class="carousel-dots"></div>
             </div>
         </div>
     </section>
