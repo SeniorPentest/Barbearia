@@ -1,98 +1,94 @@
-// Função principal do Carrossel
-function initCarousel() {
-    const carousel = document.querySelector('.snacks-carousel');
-    const carouselWrapper = document.querySelector('.snacks-carousel-wrapper');
-    if (!carousel || !carouselWrapper) return;
+/**
+ * Motor Genérico de Carrossel
+ * @param {string} wrapperSelector - O contêiner pai (moldura)
+ * @param {string} trackSelector   - A div que desliza (trilha)
+ * @param {string} cardSelector    - A classe dos itens internos
+ */
+function initCarousel(wrapperSelector, trackSelector, cardSelector) {
+    const wrapper = document.querySelector(wrapperSelector);
+    const track = document.querySelector(trackSelector);
+    if (!wrapper || !track) return;
 
-    carousel.classList.add('is-carousel');
-    const cards = carousel.querySelectorAll('.snack-card');
+    const cards = track.querySelectorAll(cardSelector);
     const totalSlides = cards.length;
-    const prevBtn = document.querySelector('.carousel-btn-prev');
-    const nextBtn = document.querySelector('.carousel-btn-next');
-    const dotsContainer = document.querySelector('.carousel-dots');
+    const prevBtn = wrapper.parentElement.querySelector('.carousel-btn-prev');
+    const nextBtn = wrapper.parentElement.querySelector('.carousel-btn-next');
+    const dotsContainer = wrapper.parentElement.querySelector('.carousel-dots');
 
-    let currentSlide = 0; // Variável local para evitar conflitos
+    let currentSlide = 0;
     let autoplayId = null;
 
-    // 1. Criar pontos de navegação
-    if (dotsContainer) {
-        dotsContainer.innerHTML = '';
-        for (let i = 0; i < totalSlides; i++) {
-            const dot = document.createElement('button');
-            dot.classList.add('carousel-dot');
-            if (i === 0) dot.classList.add('active');
-            dot.addEventListener('click', () => { currentSlide = i; updateCarousel(); resetAutoplay(); });
-            dotsContainer.appendChild(dot);
-        }
-    }
-
-    const getCarouselMetrics = () => {
-        const cardWidth = cards[0].offsetWidth + 24; // Largura + Gap
-        const visibleCards = Math.max(1, Math.round(carouselWrapper.offsetWidth / cardWidth));
+    // Métricas Dinâmicas (Sensores de largura)
+    const getMetrics = () => {
+        const cardWidth = cards[0].offsetWidth + 24; 
+        const visibleCards = Math.round(wrapper.offsetWidth / cardWidth);
         const maxIndex = Math.max(0, totalSlides - visibleCards);
         return { cardWidth, maxIndex };
     };
 
-    // 2. Lógica de Movimentação e Limite (Fix do Espaço Branco)
     function updateCarousel() {
-        const { cardWidth, maxIndex } = getCarouselMetrics();
-
-        // Ajuste de segurança: se o slide ultrapassar o limite visual, trava no máximo
+        const { cardWidth, maxIndex } = getMetrics();
         if (currentSlide > maxIndex) currentSlide = maxIndex;
+        
+        track.style.transform = `translateX(-${currentSlide * cardWidth}px)`;
 
-        carousel.style.transform = `translateX(-${currentSlide * cardWidth}px)`;
-
-        // Atualizar Dots
         if (dotsContainer) {
             const dots = dotsContainer.querySelectorAll('.carousel-dot');
             dots.forEach((dot, index) => dot.classList.toggle('active', index === currentSlide));
         }
     }
 
-    // 3. Funções de Avanço e Recuo (Loop Infinito)
     function nextSlide() {
-        const { maxIndex } = getCarouselMetrics();
-
-        // Se chegar no limite de exibição, volta ao início (0)
+        const { maxIndex } = getMetrics();
         currentSlide = (currentSlide >= maxIndex) ? 0 : currentSlide + 1;
         updateCarousel();
     }
 
     function prevSlide() {
-        currentSlide = (currentSlide > 0) ? currentSlide - 1 : totalSlides - 1;
+        const { maxIndex } = getMetrics();
+        currentSlide = (currentSlide > 0) ? currentSlide - 1 : maxIndex;
         updateCarousel();
     }
 
-    // 4. Autoplay (Girar Sozinho)
+    // Controle de Automação (Autoplay)
     const startAutoplay = () => {
         stopAutoplay();
-        autoplayId = setInterval(nextSlide, 3000);
+        autoplayId = setInterval(nextSlide, 3500);
     };
 
     const stopAutoplay = () => {
-        if (autoplayId) { clearInterval(autoplayId); autoplayId = null; }
+        if (autoplayId) clearInterval(autoplayId);
+        autoplayId = null;
     };
 
-    const resetAutoplay = () => { stopAutoplay(); startAutoplay(); };
-
-    // Listeners
-    if (prevBtn) prevBtn.addEventListener('click', () => { prevSlide(); resetAutoplay(); });
-    if (nextBtn) nextBtn.addEventListener('click', () => { nextSlide(); resetAutoplay(); });
+    // Listeners de Interrupção
+    if (prevBtn) prevBtn.addEventListener('click', () => { prevSlide(); startAutoplay(); });
+    if (nextBtn) nextBtn.addEventListener('click', () => { nextSlide(); startAutoplay(); });
+    
+    wrapper.addEventListener('mouseenter', stopAutoplay);
+    wrapper.addEventListener('mouseleave', startAutoplay);
     window.addEventListener('resize', updateCarousel);
-    carouselWrapper.addEventListener('mouseenter', stopAutoplay);
-    carouselWrapper.addEventListener('mouseleave', startAutoplay);
 
+    // Inicialização do módulo
     updateCarousel();
     startAutoplay();
 }
 
-// Inicialização Global
+// Inicialização das Instâncias do Sistema
 document.addEventListener('DOMContentLoaded', () => {
-    initCarousel();
-    // Fallback de imagens (mantido do original)
-    document.querySelectorAll('.snack-card-img img[data-fallback]').forEach(img => {
+    // Carrossel de Snacks
+    initCarousel('.snacks-carousel-wrapper', '.snacks-carousel', '.snack-card');
+    
+    // Carrossel de Planos
+    initCarousel('.plans-carousel-wrapper', '.plans-grid', '.plan-card');
+    
+    // Carrossel de Valores (O que nos move)
+    initCarousel('.values-wrapper', '.values-grid', '.value-card');
+
+    // Fallback de Imagens
+    document.querySelectorAll('img[data-fallback]').forEach(img => {
         img.addEventListener('error', () => {
-            if (img.dataset.fallback) { img.src = img.dataset.fallback; img.removeAttribute('data-fallback'); }
+            img.src = img.dataset.fallback;
         }, { once: true });
     });
 });
