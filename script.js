@@ -184,14 +184,65 @@ function initDragCarousel(containerSelector) {
     updateDrag();
 }
 
-// Carrinho de compras simples
+// Carrinho de compras com integração Mercado Pago
 function setupCart() {
     const cartItemsEl = document.getElementById('cart-items');
     const cartTotalEl = document.getElementById('cart-total');
     const cartEmptyEl = document.getElementById('cart-empty');
-    if (!cartItemsEl || !cartTotalEl || !cartEmptyEl) return;
+    const cartPanel = document.getElementById('cart-panel');
+    if (!cartItemsEl || !cartTotalEl || !cartEmptyEl || !cartPanel) return;
 
     const cartState = new Map();
+
+    // 1. Cria e injeta o botão de Finalizar Compra
+    let checkoutBtn = document.getElementById('checkout-btn');
+    if (!checkoutBtn) {
+        checkoutBtn = document.createElement('button');
+        checkoutBtn.id = 'checkout-btn';
+        checkoutBtn.className = 'btn btn-primary btn-full';
+        checkoutBtn.style.marginTop = '16px';
+        checkoutBtn.textContent = 'Finalizar Compra com Segurança';
+        cartPanel.appendChild(checkoutBtn);
+
+        // 2. Lógica de clique do botão
+        checkoutBtn.addEventListener('click', async () => {
+            if (cartState.size === 0) return alert('Carrinho vazio!');
+
+            // Pega o email do usuário se estiver logado
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            const email = session?.user?.email || 'cliente@visitante.com';
+
+            checkoutBtn.textContent = 'Gerando pagamento seguro...';
+            checkoutBtn.disabled = true;
+
+            // Formata os itens para o Mercado Pago
+            const items = Array.from(cartState.values()).map(item => ({
+                title: item.name,
+                quantity: item.qty,
+                unit_price: item.price
+            }));
+
+            try {
+                // Chama a Edge Function do Supabase
+                const { data, error } = await supabaseClient.functions.invoke('criar-pagamento', {
+                    body: { items, email }
+                });
+
+                if (error) throw error;
+                if (data?.init_point) {
+                    // Redireciona o cliente para a tela do Mercado Pago
+                    window.location.href = data.init_point; 
+                } else {
+                    throw new Error('Link não gerado.');
+                }
+            } catch (err) {
+                console.error('Erro no pagamento:', err);
+                alert('Erro ao conectar com o Mercado Pago. Tente novamente.');
+                checkoutBtn.textContent = 'Finalizar Compra com Segurança';
+                checkoutBtn.disabled = false;
+            }
+        });
+    }
 
     const renderCart = () => {
         cartItemsEl.innerHTML = '';
@@ -226,7 +277,9 @@ function setupCart() {
             cartItemsEl.appendChild(li);
         });
 
-        cartEmptyEl.style.display = cartState.size ? 'none' : 'block';
+        const isEmpty = cartState.size === 0;
+        cartEmptyEl.style.display = isEmpty ? 'block' : 'none';
+        checkoutBtn.style.display = isEmpty ? 'none' : 'block';
         cartTotalEl.textContent = formatCurrency(total);
     };
 
@@ -241,12 +294,10 @@ function setupCart() {
     };
 
     const fallbackProducts = [
-        { name: 'Barra de Frutas', price: 9.9 },
-        { name: 'Granola Premium', price: 14.9 },
-        { name: 'Mix Proteico', price: 19.9 },
-        { name: 'Energético Natural', price: 12.5 },
-        { name: 'Suco Detox', price: 11.5 },
-        { name: 'Snack Multigrãos', price: 8.9 }
+        { name: 'Produto Base 1', price: 19.9 },
+        { name: 'Produto Base 2', price: 24.9 },
+        { name: 'Produto Base 3', price: 29.9 },
+        { name: 'Produto Base 4', price: 34.9 }
     ];
 
     document.querySelectorAll('.snacks-carousel .snack-card').forEach((card, index) => {
@@ -270,7 +321,10 @@ function setupCart() {
             btn.textContent = 'Adicionar ao carrinho';
             card.appendChild(btn);
         }
-        btn.addEventListener('click', () => addToCart({ name, price }));
+        // Evita múltiplos cliques duplicados recriando o botão
+        const newBtn = btn.cloneNode(true);
+        btn.parentNode.replaceChild(newBtn, btn);
+        newBtn.addEventListener('click', () => addToCart({ name, price }));
     });
 
     renderCart();
