@@ -192,6 +192,21 @@ function setupCart() {
     const cartPanel = document.getElementById('cart-panel');
     if (!cartItemsEl || !cartTotalEl || !cartEmptyEl || !cartPanel) return;
 
+    const scheduleInput = document.getElementById('appointment-datetime');
+    const getScheduleValue = () => (scheduleInput?.value || '').trim();
+    const formatSchedule = (value) => {
+        if (!value) return '';
+        const parsed = new Date(value);
+        if (!Number.isNaN(parsed.getTime())) {
+            return parsed.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+        }
+        return value.replace('T', ' ');
+    };
+    const openCartPanel = () => {
+        cartPanel?.classList.add('cart-open');
+        cartPanel?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    };
+
     const cartState = new Map();
 
     // 1. Cria e injeta o botão de Finalizar Compra
@@ -207,6 +222,11 @@ function setupCart() {
         // 2. Lógica de clique do botão
         checkoutBtn.addEventListener('click', async () => {
             if (cartState.size === 0) return alert('Carrinho vazio!');
+            const scheduleValue = getScheduleValue();
+            if (!scheduleValue) {
+                alert('Escolha uma data e horário para o agendamento antes de finalizar a compra.');
+                return;
+            }
 
             // Pega o email do usuário se estiver logado
             const { data: { session } } = await supabaseClient.auth.getSession();
@@ -216,16 +236,21 @@ function setupCart() {
             checkoutBtn.disabled = true;
 
             // Formata os itens para o Mercado Pago
-            const items = Array.from(cartState.values()).map(item => ({
-                title: item.name,
-                quantity: item.qty,
-                unit_price: item.price
-            }));
+            const items = Array.from(cartState.values()).map(item => {
+                const itemSchedule = item.schedule || scheduleValue;
+                const scheduleLabel = formatSchedule(itemSchedule);
+                return {
+                    title: item.name,
+                    quantity: item.qty,
+                    unit_price: item.price,
+                    ...(scheduleLabel ? { description: `Agendamento: ${scheduleLabel}` } : {})
+                };
+            });
 
             try {
                 // Chama a Edge Function do Supabase
                 const { data, error } = await supabaseClient.functions.invoke('criar-pagamento', {
-                    body: { items, email }
+                    body: { items, email, appointment: scheduleValue }
                 });
 
                 if (error) throw error;
@@ -253,7 +278,8 @@ function setupCart() {
             li.className = 'cart-item';
 
             const info = document.createElement('div');
-            info.innerHTML = `<div class="cart-item-name">${item.name}</div><div class="cart-item-meta">${item.qty}x ${formatCurrency(item.price)}</div>`;
+            const scheduleLabel = formatSchedule(item.schedule);
+            info.innerHTML = `<div class="cart-item-name">${item.name}</div><div class="cart-item-meta">${item.qty}x ${formatCurrency(item.price)}</div>${scheduleLabel ? `<div class="cart-item-meta">Agendamento: ${scheduleLabel}</div>` : ''}`;
 
             const actions = document.createElement('div');
             actions.style.display = 'flex';
@@ -284,13 +310,16 @@ function setupCart() {
     };
 
     const addToCart = (item) => {
+        const selectedSchedule = getScheduleValue();
         const current = cartState.get(item.name);
         if (current) {
             current.qty += 1;
+            current.schedule = selectedSchedule || current.schedule || '';
         } else {
-            cartState.set(item.name, { ...item, qty: 1 });
+            cartState.set(item.name, { ...item, qty: 1, schedule: selectedSchedule });
         }
         renderCart();
+        openCartPanel();
     };
 
     const fallbackProducts = [

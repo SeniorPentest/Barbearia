@@ -372,6 +372,7 @@ select, input, textarea { font-family: inherit; }
 .cart-item-meta { font-size: .87rem; color: var(--mid); }
 .cart-empty { margin: 0; color: var(--muted); font-size: .9rem; }
 .add-to-cart-btn { margin-top: 8px; width: 100%; }
+.cart-schedule { margin-bottom: 12px; }
 .cart-remove {
     background: none;
     border: none;
