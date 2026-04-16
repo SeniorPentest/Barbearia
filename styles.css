@@ -44,7 +44,7 @@ body::before {
     background-color: rgba(10, 10, 10, 0.9);
     backdrop-filter: blur(14px) saturate(130%);
     border-bottom: 1px solid var(--border-color);
-    position: sticky; top: 0; z-index: 100;
+    position: relative; z-index: 100;
     padding: 16px 0;
     box-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
 }
