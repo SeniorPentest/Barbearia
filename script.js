@@ -8,6 +8,12 @@ const state = {
     paymentMethod: null
 };
 
+const unavailableSlots = [
+    '2026-04-20T14:00',
+    '2026-04-20T16:00',
+    '2026-04-21T10:00'
+];
+
 const els = {
     summaryService: document.getElementById('summary-service'),
     summarySchedule: document.getElementById('summary-schedule'),
@@ -18,7 +24,8 @@ const els = {
     statusText: document.getElementById('status-text'),
     statusDot: document.getElementById('status-dot'),
     confirmBtn: document.getElementById('confirm-btn'),
-    floatingConfirm: document.getElementById('floating-confirm')
+    floatingConfirm: document.getElementById('floating-confirm'),
+    availabilityFeedback: document.getElementById('availability-feedback')
 };
 
 function formatCurrency(value) {
@@ -30,6 +37,94 @@ function formatDate(value) {
     const parsed = new Date(value);
     if (Number.isNaN(parsed.getTime())) return 'Escolha data e hora';
     return parsed.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+}
+
+function formatInputValue(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
+function formatTimeLabel(value) {
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) return '';
+    return parsed.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+}
+
+function isWithinBusinessHours(date) {
+    if (!(date instanceof Date) || Number.isNaN(date.getTime())) return false;
+    const hour = date.getHours();
+    const minutes = date.getMinutes();
+    if (hour < 9) return false;
+    if (hour > 20) return false;
+    if (hour === 20 && minutes > 0) return false;
+    return true;
+}
+
+function isUnavailableSlot(value) {
+    if (!value) return false;
+    const normalized = value.slice(0, 16);
+    return unavailableSlots.includes(normalized);
+}
+
+function clearAvailabilityFeedback() {
+    if (!els.availabilityFeedback) return;
+    els.availabilityFeedback.innerHTML = '';
+}
+
+function applyAlternativeSlot(value) {
+    const appointment = document.getElementById('appointment');
+    if (!appointment) return;
+    appointment.value = value;
+    state.datetime = value;
+    clearAvailabilityFeedback();
+    updateSummary();
+}
+
+function showAvailabilityFeedback(message, alternatives = []) {
+    if (!els.availabilityFeedback) return;
+    els.availabilityFeedback.innerHTML = '';
+    if (!message) return;
+
+    const text = document.createElement('span');
+    text.textContent = message;
+    els.availabilityFeedback.appendChild(text);
+
+    alternatives.slice(0, 3).forEach(slotValue => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'alt-slot';
+        btn.textContent = formatTimeLabel(slotValue) || slotValue;
+        btn.addEventListener('click', () => applyAlternativeSlot(slotValue));
+        els.availabilityFeedback.appendChild(btn);
+    });
+}
+
+function generateAlternativeSlots(baseDate) {
+    if (!(baseDate instanceof Date) || Number.isNaN(baseDate.getTime())) return [];
+
+    const steps = [1, 2, 3, -1, -2, -3, 4, -4, 5, -5];
+    const suggestions = [];
+
+    steps.forEach(step => {
+        if (suggestions.length >= 3) return;
+        const candidate = new Date(baseDate);
+        candidate.setHours(candidate.getHours() + step, 0, 0, 0);
+
+        const sameDay = candidate.getFullYear() === baseDate.getFullYear()
+            && candidate.getMonth() === baseDate.getMonth()
+            && candidate.getDate() === baseDate.getDate();
+        const value = formatInputValue(candidate);
+
+        if (sameDay && isWithinBusinessHours(candidate) && !isUnavailableSlot(value)) {
+            suggestions.push(value);
+        }
+    });
+
+    return suggestions;
 }
 
 function setStatus(message, type = 'pending') {
@@ -118,13 +213,40 @@ function attachPaymentHandlers() {
     });
 }
 
+function handleAppointmentChange(value) {
+    if (!value) {
+        state.datetime = '';
+        clearAvailabilityFeedback();
+        updateSummary();
+        return;
+    }
+
+    const parsed = new Date(value);
+    const withinHours = isWithinBusinessHours(parsed);
+    const unavailable = isUnavailableSlot(value);
+
+    if (!withinHours || unavailable) {
+        const reason = unavailable
+            ? 'Horário indisponível.'
+            : 'Fora do horário comercial (9h às 20h).';
+        const alternatives = generateAlternativeSlots(parsed);
+        showAvailabilityFeedback(reason, alternatives);
+        state.datetime = '';
+        updateSummary();
+        return;
+    }
+
+    clearAvailabilityFeedback();
+    state.datetime = value.slice(0, 16);
+    updateSummary();
+}
+
 function attachFormHandlers() {
     const appointment = document.getElementById('appointment');
     const professional = document.getElementById('professional');
 
     appointment?.addEventListener('change', (e) => {
-        state.datetime = e.target.value;
-        updateSummary();
+        handleAppointmentChange(e.target.value);
     });
     professional?.addEventListener('change', (e) => {
         state.professional = e.target.value;

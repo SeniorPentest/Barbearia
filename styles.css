@@ -503,6 +503,32 @@ button, input, select, textarea { font: inherit; }
     font-weight: 600;
 }
 
+.availability-feedback {
+    min-height: 28px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    color: #e53935;
+    font-size: 0.95rem;
+}
+
+.availability-feedback .alt-slot {
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(198, 161, 91, 0.6);
+    background: rgba(198, 161, 91, 0.16);
+    color: var(--color-white);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.availability-feedback .alt-slot:hover {
+    background: rgba(198, 161, 91, 0.28);
+    transform: translateY(-1px);
+}
+
 .field input,
 .field select,
 .field textarea {
