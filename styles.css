@@ -1,6 +1,6 @@
 :root {
     --bg-color: #0a0a0a;
-    --surface-color: rgba(20, 20, 20, 0.85);
+    --surface-color: #141414; /* Cinza bem escuro para os painéis */
     --border-color: #2a2a2a;
     --text-primary: #ffffff;
     --text-secondary: #a0a0a0;
@@ -10,109 +10,98 @@
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; }
 
 body {
     background-color: var(--bg-color);
     color: var(--text-primary);
     font-family: var(--font-sans);
+    /* IMAGENS MANTIDAS - NÃO MEXER */
     background-image: url('fundo-rosto.jpg'); 
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     background-attachment: fixed;
     position: relative;
-    min-height: 100vh;
 }
 
 body::before {
     content: '';
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    background-color: rgba(0, 0, 0, 0.75);
+    background-color: rgba(0, 0, 0, 0.8); /* Escurece o fundo para legibilidade */
     z-index: -1;
 }
 
-.container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
-
-/* Cabeçalho */
+/* HEADER */
 .site-header {
     background-color: rgba(10, 10, 10, 0.9);
     backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--border-color);
     position: sticky; top: 0; z-index: 100;
-    padding: 12px 0;
+    padding: 15px 0;
 }
-
 .header-inner { display: flex; justify-content: space-between; align-items: center; }
-.brand { display: flex; align-items: center; gap: 12px; }
-.brand-logo-img { height: 50px; width: auto; }
-.brand-text { display: flex; flex-direction: column; }
-.brand-name { font-family: var(--font-serif); font-size: 1.4rem; font-weight: 800; }
+.brand { display: flex; align-items: center; gap: 10px; }
+.brand-logo-img { height: 45px; width: auto; }
+.brand-name { font-family: var(--font-serif); font-size: 1.3rem; font-weight: 800; }
 
-.nav-links a { color: #fff; text-decoration: none; margin: 0 10px; }
-
-/* Botões */
-.btn {
-    cursor: pointer; border-radius: 6px; border: none; font-weight: 700; 
-    text-decoration: none; display: inline-block; transition: 0.2s;
+/* HERO SECTION - O Ajuste de Espaço está aqui */
+.hero-section {
+    height: 75vh;
+    display: flex;
+    align-items: center;
+    background: transparent; /* Garante que não tenha fundo branco */
 }
-.btn-primary { background: var(--accent-color); color: #000; padding: 12px 25px; }
+.hero-content h1 { font-size: 3.5rem; color: var(--accent-color); line-height: 1.1; }
+.hero-content p { font-size: 1.2rem; color: var(--text-secondary); max-width: 500px; }
 
-/* Hero */
-.hero-section { height: 60vh; display: flex; align-items: center; }
-.hero-content h1 { font-size: 3.2rem; color: var(--accent-color); margin-bottom: 20px; }
+/* RESOLUÇÃO DO ESPAÇO: margem superior no botão hero */
+.btn-hero { 
+    margin-top: 40px !important; 
+    display: inline-block;
+}
 
-/* Grid de Serviços */
-.service-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
-.service-card { background: var(--surface-color); border: 1px solid var(--border-color); padding: 20px; border-radius: 12px; }
-.service-card.selected { border-color: var(--accent-color); }
+/* SEÇÕES (Removendo o fundo branco e unificando) */
+.section { 
+    padding: 80px 0; 
+    background-color: rgba(10, 10, 10, 0.95); /* Fundo escuro estático */
+    border-top: 1px solid var(--border-color);
+}
 
-/* Painel de Agendamento */
-.booking-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-top: 40px; }
-.panel { background: var(--surface-color); padding: 25px; border-radius: 12px; border: 1px solid var(--border-color); }
+/* CARROSSEL DE SERVIÇOS */
+.service-grid {
+    display: flex;
+    overflow-x: auto;
+    gap: 20px;
+    padding: 20px 0;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+}
+.service-grid::-webkit-scrollbar { height: 5px; }
+.service-grid::-webkit-scrollbar-thumb { background: var(--accent-color); border-radius: 10px; }
 
-/* =========================================
-   CORREÇÃO DE QUEBRA MOBILE (BLINDADA)
-========================================= */
+.service-card {
+    min-width: 280px;
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 25px;
+    scroll-snap-align: start;
+}
+
+/* AGENDAMENTO */
+.booking-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+.panel { background: var(--surface-color); padding: 30px; border-radius: 15px; border: 1px solid var(--border-color); }
+.field input { width: 100%; padding: 12px; background: #000; border: 1px solid var(--border-color); color: #fff; border-radius: 6px; margin-top: 10px; }
+
+/* BOTÕES GERAIS */
+.btn { padding: 12px 28px; border-radius: 6px; font-weight: 700; cursor: pointer; border: none; text-decoration: none; transition: 0.3s; }
+.btn-primary, .confirm-btn { background: var(--accent-color); color: #000; }
+
+/* MOBILE */
 @media (max-width: 768px) {
-    /* Força o cabeçalho a empilhar */
-    .header-inner { 
-        flex-direction: column !important; 
-        align-items: center !important;
-        gap: 15px !important; 
-        text-align: center !important;
-    }
-
-    .brand { 
-        width: 100% !important; 
-        justify-content: center !important; 
-    }
-
-    .nav-links { display: none !important; } /* Esconde menus para limpar visual */
-
-    .header-actions { 
-        width: 100% !important; 
-    }
-
-    /* Botões ocupando largura total para facilitar o toque */
-    .header-actions .btn, 
-    .hero-content .btn,
-    .confirm-btn { 
-        width: 100% !important; 
-        display: block !important;
-        text-align: center !important;
-        padding: 16px !important;
-    }
-
-    .hero-content h1 { font-size: 2.2rem !important; }
-    
-    .booking-grid { 
-        grid-template-columns: 1fr !important; 
-    }
-
-    .payment-methods { 
-        flex-direction: column !important; 
-        gap: 10px !important; 
-    }
+    .header-inner { flex-direction: column; gap: 15px; text-align: center; }
+    .hero-content h1 { font-size: 2.2rem; }
+    .booking-grid { grid-template-columns: 1fr; }
+    .hero-content .btn { width: 100%; text-align: center; }
 }
