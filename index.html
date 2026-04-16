@@ -9,57 +9,27 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-
     <header class="site-header">
         <div class="container header-inner">
             <div class="brand">
-                <div class="brand-mark">B</div>
-                <div class="brand-text">
-                    <span class="brand-name">Barbearia Luxo</span>
-                </div>
+                <div class="brand-mark">BP</div>
+                <div class="brand-text"><span class="brand-name">Barbearia Premium</span></div>
             </div>
-            <nav class="nav-links">
-                <a href="#servicos">Serviços</a>
-                <a href="#agendar">Agendar</a>
-            </nav>
-            <div class="header-actions">
-                <a href="#agendar" class="btn btn-primary">Agendar Agora</a>
-            </div>
+            <nav class="nav-links"><a href="#servicos">Serviços</a><a href="#agendar">Agendar</a></nav>
+            <div class="header-actions"><a href="#agendar" class="btn btn-primary">Agendar Agora</a></div>
         </div>
     </header>
 
     <main>
         <section id="servicos" class="section">
             <div class="container">
-                <div class="section-head">
-                    <h2>Nossos Serviços</h2>
-                    <p>Selecione um ou mais serviços para o seu atendimento</p>
-                </div>
-                
+                <div class="section-head"><h2>Nossos Serviços</h2><p>Selecione quantos desejar</p></div>
                 <div class="service-grid">
-                    <div class="service-card" data-service="Corte Social" data-price="45">
-                        <div class="card-head">
-                            <h3>Corte Social</h3>
-                            <span class="price-tag">R$ 45,00</span>
-                        </div>
-                        <button class="service-select">Selecionar</button>
-                    </div>
-
-                    <div class="service-card" data-service="Barba Completa" data-price="35">
-                        <div class="card-head">
-                            <h3>Barba Completa</h3>
-                            <span class="price-tag">R$ 35,00</span>
-                        </div>
-                        <button class="service-select">Selecionar</button>
-                    </div>
-
-                    <div class="service-card test-card" data-service="Teste Sistema" data-price="1">
-                        <div class="card-head">
-                            <h3>Teste (R$ 1,00)</h3>
-                            <span class="price-tag">R$ 1,00</span>
-                        </div>
-                        <button class="service-select">Selecionar</button>
-                    </div>
+                    <div class="service-card" data-service="Corte + Barba" data-price="90"><h3>Corte + Barba</h3><span class="price-tag">R$ 90,00</span><button class="service-select">Selecionar</button></div>
+                    <div class="service-card" data-service="Barba" data-price="55"><h3>Barba</h3><span class="price-tag">R$ 55,00</span><button class="service-select">Selecionar</button></div>
+                    <div class="service-card" data-service="Corte Clássico" data-price="45"><h3>Corte Clássico</h3><span class="price-tag">R$ 45,00</span><button class="service-select">Selecionar</button></div>
+                    <div class="service-card" data-service="Sobrancelha" data-price="15"><h3>Sobrancelha</h3><span class="price-tag">R$ 15,00</span><button class="service-select">Selecionar</button></div>
+                    <div class="service-card test-card" data-service="Teste" data-price="1"><h3>Teste Sistema</h3><span class="price-tag">R$ 1,00</span><button class="service-select">Selecionar</button></div>
                 </div>
             </div>
         </section>
@@ -68,41 +38,17 @@
             <div class="container">
                 <div class="booking-grid">
                     <div class="panel">
-                        <h3>Seus Dados</h3>
-                        <div class="field">
-                            <label>Nome Completo</label>
-                            <input type="text" id="client-name" placeholder="Como quer ser chamado?">
-                        </div>
-                        <div class="field">
-                            <label>Data e Hora</label>
-                            <input type="datetime-local" id="appointment">
-                        </div>
-                        <div class="field">
-                            <label>Profissional</label>
-                            <select id="professional">
-                                <option value="qualquer">O próximo disponível</option>
-                                <option value="Vitor">Vitor</option>
-                                <option value="Marcos">Marcos</option>
-                            </select>
-                        </div>
+                        <h3>Dados</h3>
+                        <div class="field"><label>Nome</label><input type="text" id="client-name" placeholder="Seu nome"></div>
+                        <div class="field"><label>Data/Hora</label><input type="datetime-local" id="appointment"></div>
                     </div>
-
                     <div class="panel">
                         <h3>Pagamento</h3>
                         <div class="payment-methods">
-                            <button class="payment-button active" data-method="pix">Pix (QR Code)</button>
-                            <button class="payment-button" data-method="card">Cartão de Crédito</button>
+                            <button class="payment-button active" data-method="pix">Pix</button>
+                            <button class="payment-button" data-method="card">Cartão</button>
                         </div>
-
-                        <div id="payment-info" class="payment-form">
-                            O pagamento via Pix gera um QR Code instantâneo.
-                        </div>
-
-                        <div class="total-line">
-                            <span>Total:</span>
-                            <span id="total-value">R$ 0,00</span>
-                        </div>
-
+                        <div class="total-line"><span>Total:</span><span id="total-value">R$ 0,00</span></div>
                         <button id="confirm-btn" class="confirm-btn" disabled>Confirmar Agendamento</button>
                     </div>
                 </div>
@@ -110,22 +56,16 @@
         </section>
     </main>
 
-    <div id="pix-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:9999; justify-content:center; align-items:center; padding:20px;">
-        <div style="background:#141414; padding:30px; border-radius:16px; border:1px solid #d4af37; max-width:400px; width:100%; text-align:center;">
-            <h3 style="color:#d4af37; margin-bottom:10px;">Pagamento Pix</h3>
-            <img id="qr-code-img" src="" style="width:220px; height:220px; background:white; padding:10px; border-radius:8px; margin:20px auto;">
-            
-            <div style="margin-bottom:20px; text-align: left;">
-                <label style="font-size:0.8rem; color:#d4af37; display:block; margin-bottom:5px;">Pix Copia e Cola:</label>
-                <input id="pix-copy-paste" readonly style="width:100%; background:#000; border:1px solid #2a2a2a; color:#fff; padding:12px; border-radius:8px; font-size:0.75rem;">
-                <button onclick="copyPixCode()" style="background:#d4af37; border:none; color:#000; width:100%; padding:10px; margin-top:10px; border-radius:8px; font-weight:700; cursor:pointer;">Copiar Código</button>
-            </div>
-
-            <button id="btn-check-payment" style="background:#00C851; border:none; color:#fff; width:100%; padding:16px; border-radius:8px; font-weight:700; cursor:pointer;">Já paguei! Ir para o WhatsApp</button>
-            <button onclick="document.getElementById('pix-modal').style.display='none'" style="background:transparent; border:none; color:#ff4444; margin-top:15px; cursor:pointer;">Cancelar</button>
+    <div id="pix-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:9999; justify-content:center; align-items:center;">
+        <div style="background:#141414; padding:30px; border-radius:16px; border:1px solid #d4af37; max-width:400px; width:90%; text-align:center;">
+            <h3 style="color:#d4af37;">Pagamento Pix</h3>
+            <img id="qr-code-img" src="" style="width:200px; background:white; padding:10px; margin:20px 0;">
+            <input id="pix-copy-paste" readonly style="width:100%; background:#000; color:#fff; padding:10px; border-radius:8px; font-size:0.7rem; border:1px solid #333;">
+            <button onclick="copyPixCode()" style="background:#d4af37; width:100%; padding:10px; margin-top:10px; border-radius:8px; font-weight:700;">Copiar Código</button>
+            <button id="btn-check-payment" style="background:#00C851; color:#fff; width:100%; padding:15px; margin-top:10px; border-radius:8px; font-weight:700;">Já paguei! Ir para o WhatsApp</button>
+            <button onclick="document.getElementById('pix-modal').style.display='none'" style="color:#ff4444; margin-top:15px; background:none; border:none; cursor:pointer;">Cancelar</button>
         </div>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>
