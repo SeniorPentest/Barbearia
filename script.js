@@ -1,4 +1,3 @@
-// CONFIGURAÇÃO DO SUPABASE
 const supabaseUrl = 'https://kifhzxrvkfvmjlrtdeif.supabase.co';
 const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpZmh6eHJ2a2Z2bWpscnRkZWlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxODM5MTcsImV4cCI6MjA5MTc1OTkxN30.z5oZ1KrN7cVkDWdQoL8M5yE8vLPm5h6x5pbvQOcmjaY';
 const supabaseClient = supabase.createClient(supabaseUrl, supabaseAnonKey);
@@ -6,8 +5,8 @@ const supabaseClient = supabase.createClient(supabaseUrl, supabaseAnonKey);
 const currencyFormatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
 const state = {
-    service: null,
-    price: 0,
+    selectedServices: [], // Agora é um array (lista) de serviços
+    totalPrice: 0,
     datetime: '',
     professional: '',
     paymentMethod: null
@@ -44,24 +43,35 @@ function formatDate(value) {
 }
 
 function updateSummary() {
-    const ready = state.service && state.datetime && state.paymentMethod;
+    // Só libera o botão se tiver pelo menos 1 serviço, data e método
+    const ready = state.selectedServices.length > 0 && state.datetime && state.paymentMethod;
     const btn = document.getElementById('confirm-btn');
     if (btn) btn.disabled = !ready;
 
     const totalEl = document.getElementById('total-value');
-    if (totalEl) totalEl.textContent = formatCurrency(state.price);
+    if (totalEl) totalEl.textContent = formatCurrency(state.totalPrice);
 }
 
-// Seleção de Serviços
+// SELEÇÃO MÚLTIPLA DE SERVIÇOS
 document.querySelectorAll('.service-card').forEach(card => {
     card.querySelector('.service-select').addEventListener('click', () => {
-        document.querySelectorAll('.service-card').forEach(c => c.classList.remove('selected'));
-        card.classList.add('selected');
+        const serviceName = card.dataset.service;
+        const servicePrice = Number(card.dataset.price);
+
+        // Se já está selecionado, remove. Se não, adiciona.
+        if (card.classList.contains('selected')) {
+            card.classList.remove('selected');
+            card.querySelector('.service-select').textContent = "Selecionar";
+            state.selectedServices = state.selectedServices.filter(s => s.name !== serviceName);
+            state.totalPrice -= servicePrice;
+        } else {
+            card.classList.add('selected');
+            card.querySelector('.service-select').textContent = "Adicionado ✓";
+            state.selectedServices.push({ name: serviceName, price: servicePrice });
+            state.totalPrice += servicePrice;
+        }
         
-        state.service = card.dataset.service;
-        state.price = Number(card.dataset.price);
         updateSummary();
-        document.getElementById('booking')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
 });
 
@@ -99,16 +109,26 @@ async function confirmBooking() {
     const professional = state.professional || 'primeiro disponível';
     const paymentLabel = state.paymentMethod === 'pix' ? 'Pix' : state.paymentMethod === 'card' ? 'Cartão' : 'Dinheiro na barbearia';
 
-    const message = `Olá! Sou ${clientName}. Acabei de confirmar e pagar meu agendamento:\n\n*Serviço:* ${state.service}\n*Data:* ${dateLabel}\n*Profissional:* ${professional}\n*Pagamento:* ${paymentLabel}`;
+    // Formata a lista de serviços para o Zap
+    const servicosNomes = state.selectedServices.map(s => s.name).join(', ');
+
+    const message = `Olá! Sou ${clientName}. Acabei de confirmar e pagar meu agendamento:\n\n*Serviços:* ${servicosNomes}\n*Data:* ${dateLabel}\n*Profissional:* ${professional}\n*Total:* ${formatCurrency(state.totalPrice)}\n*Pagamento:* ${paymentLabel}`;
     const whatsappUrl = `https://wa.me/5511915723418?text=${encodeURIComponent(message)}`;
 
     if (state.paymentMethod === 'pix' || state.paymentMethod === 'card') {
         try {
             localStorage.setItem('zapAgendamento', whatsappUrl);
 
+            // Monta o array de itens para enviar ao MP
+            const mpItems = state.selectedServices.map(s => ({
+                title: s.name,
+                quantity: 1,
+                unit_price: s.price
+            }));
+
             const { data, error } = await supabaseClient.functions.invoke('criar-pagamento', {
                 body: { 
-                    items: [{ title: `${state.service} com ${professional}`, quantity: 1, unit_price: state.price }],
+                    items: mpItems,
                     email: 'cliente@barbearia.com',
                     method: state.paymentMethod 
                 }
