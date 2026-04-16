@@ -7,17 +7,13 @@
     --border-color: #2a2a2a;
     --text-primary: #ffffff;
     --text-secondary: #a0a0a0;
-    --accent-color: #d4af37; /* Dourado Barbearia */
+    --accent-color: #d4af37;
     --accent-hover: #b5952f;
     --danger: #ff4444;
-    --success: #00C851;
     --font-sans: 'Inter', sans-serif;
     --font-serif: 'Playfair Display', serif;
 }
 
-/* ===========================
-   RESET GLOBAL
-=========================== */
 * {
     margin: 0;
     padding: 0;
@@ -33,7 +29,6 @@ body {
     color: var(--text-primary);
     font-family: var(--font-sans);
     line-height: 1.6;
-    -webkit-font-smoothing: antialiased;
 }
 
 .container {
@@ -100,10 +95,14 @@ h1, h2, h3 {
     font-weight: 800;
 }
 
+.nav-links {
+    display: flex;
+    gap: 16px;
+}
+
 .nav-links a {
     color: var(--text-primary);
     text-decoration: none;
-    margin: 0 16px;
     font-weight: 500;
     transition: color 0.2s;
 }
@@ -118,6 +117,10 @@ h1, h2, h3 {
     gap: 24px;
 }
 
+.header-phone {
+    font-weight: 600;
+}
+
 /* ===========================
    BOTÕES E COMPONENTES
 =========================== */
@@ -130,15 +133,12 @@ h1, h2, h3 {
     cursor: pointer;
     border: none;
     transition: all 0.2s ease;
+    text-align: center;
 }
 
 .btn-primary {
     background-color: var(--accent-color);
     color: #000;
-}
-
-.btn-primary:hover {
-    background-color: var(--accent-hover);
 }
 
 .section {
@@ -148,125 +148,6 @@ h1, h2, h3 {
 .section-head {
     margin-bottom: 48px;
     text-align: center;
-}
-
-.section-head h2 {
-    font-size: 2.5rem;
-}
-
-/* ===========================
-   AGENDAMENTO E FORMULÁRIOS
-=========================== */
-.booking-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 32px;
-}
-
-.panel {
-    background-color: var(--surface-color);
-    border: 1px solid var(--border-color);
-    border-radius: 16px;
-    padding: 32px;
-}
-
-.field {
-    margin-bottom: 24px;
-}
-
-.field label {
-    display: block;
-    font-size: 0.9rem;
-    font-weight: 600;
-    margin-bottom: 8px;
-    color: var(--text-secondary);
-}
-
-.field input, .field select {
-    width: 100%;
-    padding: 14px;
-    background-color: var(--bg-color);
-    border: 1px solid var(--border-color);
-    color: var(--text-primary);
-    border-radius: 8px;
-    font-size: 1rem;
-    font-family: var(--font-sans);
-}
-
-.field input:focus, .field select:focus {
-    outline: none;
-    border-color: var(--accent-color);
-}
-
-.payment-methods {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 24px;
-}
-
-.payment-button {
-    flex: 1;
-    padding: 12px;
-    background: transparent;
-    border: 1px solid var(--border-color);
-    color: var(--text-primary);
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 500;
-    transition: all 0.2s;
-}
-
-.payment-button:hover {
-    border-color: var(--text-secondary);
-}
-
-.payment-button.active {
-    border-color: var(--accent-color);
-    color: var(--accent-color);
-    background-color: rgba(212, 175, 55, 0.05);
-}
-
-.payment-form {
-    background-color: var(--bg-color);
-    padding: 16px;
-    border-radius: 8px;
-    margin-bottom: 24px;
-    border: 1px dashed var(--border-color);
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-}
-
-.total-line {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-top: 24px;
-    border-top: 1px solid var(--border-color);
-    margin-bottom: 24px;
-    font-size: 1.2rem;
-}
-
-#total-value {
-    font-size: 1.5rem;
-    color: var(--accent-color);
-}
-
-.confirm-btn {
-    width: 100%;
-    padding: 16px;
-    background-color: var(--accent-color);
-    color: #000;
-    border: none;
-    border-radius: 8px;
-    font-size: 1.1rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: opacity 0.2s;
-}
-
-.confirm-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
 }
 
 /* ===========================
@@ -333,6 +214,7 @@ h1, h2, h3 {
     color: var(--text-primary);
     border-radius: 6px;
     cursor: pointer;
+    font-weight: 600;
     transition: background 0.2s;
 }
 
@@ -342,33 +224,153 @@ h1, h2, h3 {
     border-color: var(--accent-color);
 }
 
-/* Destaque para o card de teste */
 .test-card {
     border-color: var(--danger) !important;
 }
 
 /* ===========================
-   AJUSTES FINOS PARA CELULAR
+   AGENDAMENTO E FORMULÁRIOS
+=========================== */
+.booking-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+}
+
+.panel {
+    background-color: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 32px;
+}
+
+.field {
+    margin-bottom: 24px;
+}
+
+.field label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--text-secondary);
+}
+
+.field input, .field select {
+    width: 100%;
+    padding: 14px;
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+.field input:focus, .field select:focus {
+    outline: none;
+    border-color: var(--accent-color);
+}
+
+.payment-methods {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.payment-button {
+    flex: 1;
+    padding: 12px;
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.payment-button.active {
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+    background-color: rgba(212, 175, 55, 0.05);
+}
+
+.payment-form {
+    background-color: var(--bg-color);
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 24px;
+    border: 1px dashed var(--border-color);
+    color: var(--text-secondary);
+}
+
+.total-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-color);
+    margin-bottom: 24px;
+    font-size: 1.2rem;
+}
+
+#total-value {
+    font-size: 1.5rem;
+    color: var(--accent-color);
+}
+
+.confirm-btn {
+    width: 100%;
+    padding: 16px;
+    background-color: var(--accent-color);
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.confirm-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ===========================
+   CELULAR (MOBILE FIRST)
 =========================== */
 @media (max-width: 768px) {
     .section {
         padding: 40px 0;
     }
     
-    .nav-links {
-        display: none; /* Simplifica o menu no celular */
+    /* Organizando o Cabeçalho em Coluna no Celular */
+    .header-inner {
+        flex-direction: column;
+        gap: 16px;
     }
-
+    
     .brand-kicker {
         display: none; 
     }
     
+    .nav-links {
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
     .header-actions {
-        display: none; 
+        width: 100%;
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .header-actions .btn {
+        width: 100%;
     }
     
     .booking-grid {
-        grid-template-columns: 1fr; /* Coloca os formulários um embaixo do outro */
+        grid-template-columns: 1fr;
         gap: 16px;
     }
     
@@ -376,22 +378,8 @@ h1, h2, h3 {
         padding: 24px 16px;
     }
 
-    .total-line {
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
-        text-align: center;
-    }
-    
-    #confirm-btn {
-        width: 100%;
-        padding: 16px;
-        font-size: 1.1rem;
-    }
-    
     .payment-methods {
         flex-direction: column;
-        gap: 10px;
     }
     
     .payment-button {
