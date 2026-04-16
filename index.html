@@ -124,6 +124,24 @@
         </section>
     </main>
 
+    <div id="pix-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close" id="close-pix-modal" aria-label="Fechar modal">&times;</button>
+            <h3>Pagamento via Pix</h3>
+            <p>Escaneie o QR Code ou copie o código abaixo para finalizar.</p>
+            <div class="qr-wrapper">
+                <img id="qr-code-img" alt="QR Code Pix" class="qr-image">
+            </div>
+            <div class="copy-row">
+                <input id="pix-copy-paste" type="text" readonly>
+                <button class="btn btn-primary" id="copy-pix-btn" type="button">Copiar código</button>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" id="btn-check-payment" type="button">Já paguei</button>
+            </div>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
