@@ -1,5 +1,4 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -11,11 +10,13 @@ const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 function isValidDateYYYYMMDD(value: string): boolean {
   if (!DATE_RE.test(value)) return false;
+
   const d = new Date(`${value}T00:00:00Z`);
+
   return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === value;
 }
 
-serve(async (req) => {
+Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
@@ -53,7 +54,10 @@ serve(async (req) => {
     }
 
     const supabase = createClient(supabaseUrl, supabaseAnonKey);
-    const { data, error } = await supabase.rpc("get_disponibilidade", { p_date: date });
+
+    const { data, error } = await supabase.rpc("get_disponibilidade", {
+      p_date: date,
+    });
 
     if (error) {
       throw new Error(error.message || "Falha ao consultar disponibilidade");
@@ -65,6 +69,7 @@ serve(async (req) => {
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Erro inesperado";
+
     return new Response(JSON.stringify({ error: message }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
