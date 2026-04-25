@@ -1,0 +1,542 @@
+:root {
+    --bg-color: #080808;
+    --surface-color: #141414;
+    --surface-soft: #1a1a1a;
+    --border-color: #2a2a2a;
+    --text-primary: #ffffff;
+    --text-secondary: #a0a0a0;
+    --accent-color: #d4af37;
+    --success-color: #68d391;
+    --warning-color: #f6c453;
+    --danger-color: #ff7777;
+    --font-sans: 'Inter', sans-serif;
+    --font-serif: 'Playfair Display', serif;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    background:
+        radial-gradient(circle at 10% 10%, rgba(212, 175, 55, 0.12), transparent 35%),
+        radial-gradient(circle at 85% 0%, rgba(255, 255, 255, 0.06), transparent 30%),
+        var(--bg-color);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+}
+
+button,
+input {
+    font-family: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+.container {
+    width: min(1180px, 92vw);
+    margin: 0 auto;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* LOGIN */
+.login-screen {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+}
+
+.login-card {
+    width: min(460px, 100%);
+    background: linear-gradient(145deg, rgba(24, 24, 24, 0.96), rgba(12, 12, 12, 0.98));
+    border: 1px solid rgba(212, 175, 55, 0.22);
+    border-radius: 22px;
+    padding: 28px;
+    box-shadow: 0 28px 90px rgba(0, 0, 0, 0.55);
+}
+
+.login-brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+.login-logo {
+    width: 52px;
+    height: auto;
+}
+
+.login-kicker {
+    color: var(--accent-color);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 800;
+}
+
+.login-card h1 {
+    font-family: var(--font-serif);
+    font-size: 1.75rem;
+    line-height: 1.1;
+}
+
+.login-subtitle {
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 22px;
+}
+
+.login-form {
+    display: grid;
+    gap: 16px;
+}
+
+.field {
+    display: grid;
+    gap: 8px;
+}
+
+.field label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.field input {
+    width: 100%;
+    padding: 13px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    background: rgba(8, 8, 8, 0.95);
+    color: var(--text-primary);
+    outline: none;
+    transition: 0.2s ease;
+}
+
+.field input:focus {
+    border-color: rgba(212, 175, 55, 0.75);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.14);
+}
+
+.primary-btn,
+.secondary-btn,
+.ghost-btn {
+    min-height: 44px;
+    border-radius: 12px;
+    font-weight: 800;
+    border: 1px solid transparent;
+    transition: 0.2s ease;
+}
+
+.primary-btn {
+    background: linear-gradient(120deg, var(--accent-color), #b88c24);
+    color: #080808;
+    box-shadow: 0 16px 40px rgba(212, 175, 55, 0.22);
+}
+
+.primary-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 18px 48px rgba(212, 175, 55, 0.30);
+}
+
+.primary-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+    transform: none;
+    box-shadow: none;
+}
+
+.secondary-btn {
+    padding: 0 16px;
+    background: rgba(212, 175, 55, 0.10);
+    color: var(--accent-color);
+    border-color: rgba(212, 175, 55, 0.32);
+}
+
+.secondary-btn:hover {
+    background: rgba(212, 175, 55, 0.16);
+}
+
+.ghost-btn {
+    padding: 0 14px;
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+.ghost-btn:hover {
+    border-color: rgba(212, 175, 55, 0.42);
+    color: var(--accent-color);
+}
+
+.form-error {
+    min-height: 20px;
+    color: var(--danger-color);
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.back-link {
+    display: inline-block;
+    margin-top: 20px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.back-link:hover {
+    color: var(--accent-color);
+}
+
+/* ADMIN */
+.admin-screen {
+    min-height: 100vh;
+}
+
+.admin-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: rgba(8, 8, 8, 0.92);
+    border-bottom: 1px solid var(--border-color);
+    backdrop-filter: blur(14px);
+}
+
+.admin-header-inner {
+    min-height: 82px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 12px 0;
+}
+
+.admin-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.admin-logo {
+    width: 48px;
+    height: auto;
+}
+
+.admin-kicker {
+    color: var(--accent-color);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 800;
+}
+
+.admin-brand h1 {
+    font-family: var(--font-serif);
+    font-size: 1.4rem;
+}
+
+.admin-user-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.dashboard-section {
+    padding: 32px 0 56px;
+}
+
+.dashboard-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 22px;
+}
+
+.dashboard-head h2 {
+    font-family: var(--font-serif);
+    font-size: 2rem;
+    margin-bottom: 6px;
+}
+
+.dashboard-head p {
+    color: var(--text-secondary);
+}
+
+.date-filter {
+    display: grid;
+    gap: 8px;
+    min-width: 220px;
+}
+
+.date-filter label {
+    color: var(--text-secondary);
+    font-size: 0.86rem;
+}
+
+.date-filter input {
+    min-height: 44px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    background: rgba(8, 8, 8, 0.95);
+    color: var(--text-primary);
+    padding: 0 12px;
+    outline: none;
+}
+
+.date-filter input:focus {
+    border-color: rgba(212, 175, 55, 0.75);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+.stat-card {
+    background: linear-gradient(145deg, rgba(22, 22, 22, 0.92), rgba(12, 12, 12, 0.96));
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 18px;
+    box-shadow: 0 14px 42px rgba(0, 0, 0, 0.28);
+}
+
+.stat-card span {
+    display: block;
+    color: var(--text-secondary);
+    font-size: 0.84rem;
+    margin-bottom: 8px;
+}
+
+.stat-card strong {
+    color: var(--accent-color);
+    font-size: 1.35rem;
+}
+
+.toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 14px;
+}
+
+.load-status {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.appointments-wrapper {
+    background: rgba(12, 12, 12, 0.82);
+    border: 1px solid var(--border-color);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 18px 58px rgba(0, 0, 0, 0.35);
+}
+
+.appointments-table-head,
+.appointment-row {
+    display: grid;
+    grid-template-columns: 0.75fr 1.1fr 1.35fr 0.8fr 1fr 1fr;
+    gap: 12px;
+    align-items: center;
+}
+
+.appointments-table-head {
+    padding: 14px 16px;
+    background: rgba(255, 255, 255, 0.035);
+    color: var(--text-secondary);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 800;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.appointments-list {
+    display: grid;
+}
+
+.appointment-row {
+    padding: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.appointment-row:last-child {
+    border-bottom: none;
+}
+
+.appointment-time {
+    color: var(--accent-color);
+    font-weight: 900;
+    font-size: 1.05rem;
+}
+
+.appointment-client strong {
+    display: block;
+    margin-bottom: 3px;
+}
+
+.appointment-client span,
+.appointment-service span,
+.appointment-value span {
+    color: var(--text-secondary);
+    font-size: 0.82rem;
+}
+
+.appointment-service strong {
+    display: block;
+    line-height: 1.35;
+}
+
+.appointment-value strong {
+    display: block;
+}
+
+.status-pill {
+    display: inline-flex;
+    width: fit-content;
+    align-items: center;
+    justify-content: center;
+    min-height: 28px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 0.76rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    border: 1px solid var(--border-color);
+}
+
+.status-confirmed,
+.status-approved {
+    color: #9bf0c9;
+    border-color: rgba(104, 211, 145, 0.45);
+    background: rgba(104, 211, 145, 0.10);
+}
+
+.status-pending,
+.status-pending_payment {
+    color: #ffe08a;
+    border-color: rgba(246, 196, 83, 0.45);
+    background: rgba(246, 196, 83, 0.10);
+}
+
+.status-expired,
+.status-cancelled,
+.status-rejected {
+    color: #ffb0b0;
+    border-color: rgba(255, 119, 119, 0.45);
+    background: rgba(255, 119, 119, 0.10);
+}
+
+.status-default {
+    color: var(--text-secondary);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.empty-state {
+    padding: 32px 18px;
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+@media (max-width: 900px) {
+    .admin-header-inner,
+    .dashboard-head,
+    .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .admin-user-box {
+        justify-content: space-between;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .appointments-table-head {
+        display: none;
+    }
+
+    .appointments-list {
+        gap: 12px;
+        padding: 12px;
+    }
+
+    .appointment-row {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+        border: 1px solid var(--border-color);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.025);
+    }
+
+    .appointment-row > div {
+        display: flex;
+        justify-content: space-between;
+        gap: 14px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        padding-bottom: 10px;
+    }
+
+    .appointment-row > div:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .appointment-row > div::before {
+        content: attr(data-label);
+        color: var(--text-secondary);
+        font-size: 0.82rem;
+        font-weight: 800;
+    }
+
+    .appointment-client,
+    .appointment-service,
+    .appointment-value {
+        text-align: right;
+    }
+}
+
+@media (max-width: 520px) {
+    .login-card {
+        padding: 22px;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-user-box {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .appointment-row > div {
+        flex-direction: column;
+        text-align: left;
+    }
+
+    .appointment-client,
+    .appointment-service,
+    .appointment-value {
+        text-align: left;
+    }
+}
