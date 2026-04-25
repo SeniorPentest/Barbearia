@@ -277,6 +277,51 @@ document.getElementById('appointment-date').addEventListener('change', async (ev
 
 document.getElementById('client-name').addEventListener('input', updateUI);
 
+async function createReservation() {
+    const name = document.getElementById('client-name').value.trim();
+    const phone = document.getElementById('client-phone')?.value?.trim() || null;
+
+    const paymentMethodMap = {
+        pix: 'pix',
+        card: 'card',
+        onsite: 'pay_at_shop'
+    };
+
+    const paymentMethod = paymentMethodMap[state.paymentMethod];
+
+    if (!paymentMethod) {
+        throw new Error('Método de pagamento inválido.');
+    }
+
+    if (!state.selectedSlot?.start || !state.selectedSlot?.end) {
+        throw new Error('Selecione um horário válido.');
+    }
+
+    const response = await fetch(`${supabaseUrl}/functions/v1/criar-reserva`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            client_name: name,
+            client_phone: phone,
+            selected_services: state.selectedServices,
+            total_price: state.totalPrice,
+            payment_method: paymentMethod,
+            appointment_start: state.selectedSlot.start,
+            appointment_end: state.selectedSlot.end
+        })
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+        throw new Error(data?.error || 'Falha ao criar reserva.');
+    }
+
+    return data;
+}
+
 async function confirmBooking() {
     const btn = document.getElementById('confirm-btn');
 
@@ -288,6 +333,8 @@ async function confirmBooking() {
     const slotText = formatSlotForDisplay(state.selectedSlot);
 
     try {
+        const reservation = await createReservation();
+
         if (state.paymentMethod === 'pix') {
             const payload = generatePixPayload(state.totalPrice);
             const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(payload)}`;
@@ -297,7 +344,7 @@ async function confirmBooking() {
             document.getElementById('pix-modal').classList.add('open');
 
             document.getElementById('btn-check-payment').onclick = () => {
-                const msg = `Olá! Já paguei via Pix.\nCliente: ${name}\nServiços: ${services}\nTotal: R$ ${state.totalPrice.toFixed(2)}${slotText ? `\nHorário: ${slotText}` : ''}\nEnvio o comprovante para confirmar?`;
+                const msg = `Olá! Já paguei via Pix.\nCliente: ${name}\nServiços: ${services}\nTotal: R$ ${state.totalPrice.toFixed(2)}${slotText ? `\nHorário: ${slotText}` : ''}\nReserva: ${reservation.appointment_id}\nEnvio o comprovante para confirmar?`;
                 window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
             };
         } else if (state.paymentMethod === 'card') {
@@ -313,7 +360,8 @@ async function confirmBooking() {
 
             window.location.href = data.init_point;
         } else if (state.paymentMethod === 'onsite') {
-            alert('Pagamento na barbearia selecionado. A reserva real será implementada no próximo commit.');
+            alert(`Reserva confirmada para pagar na barbearia.\nID da reserva: ${reservation.appointment_id}`);
+            await loadAvailabilityByDate(state.selectedDate);
         }
     } catch (err) {
         alert('Erro: ' + err.message);
