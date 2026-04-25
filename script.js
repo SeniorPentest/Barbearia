@@ -1,5 +1,5 @@
 const supabaseUrl = 'https://kifhzxrvkfvmjlrtdeif.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpZmh6eHJ2kZ2bWpscnRkZWlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxODM5MTcsImV4cCI6MjA5MTc1OTkxN30.z5oZ1KrN7cVkDWdQoL8M5yE8vLPm5h6x5pbvQOcmjaY';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIUzI1NiIsInJlZiI6ImtpZmh6eHJ2kZ2bWpscnRkZWlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxODM5MTcsImV4cCI6MjA5MTc1OTkxN30.z5oZ1KrN7cVkDWdQoL8M5yE8vLPm5h6x5pbvQOcmjaY';
 const supabaseClient = supabase.createClient(supabaseUrl, supabaseAnonKey);
 
 const PIX_KEY = '5511915723418';
@@ -25,14 +25,17 @@ function emvField(id, value) {
 
 function calculateCRC16(payload) {
     let crc = 0xffff;
+
     for (let i = 0; i < payload.length; i++) {
         crc ^= payload.charCodeAt(i) << 8;
+
         for (let j = 0; j < 8; j++) {
             const flag = crc & 0x8000;
             crc = (crc << 1) & 0xffff;
             if (flag) crc ^= 0x1021;
         }
     }
+
     return crc.toString(16).toUpperCase().padStart(4, '0');
 }
 
@@ -40,7 +43,8 @@ function generatePixPayload(amount) {
     const amountFormatted = Number(amount).toFixed(2);
     const txid = `BARB${Date.now().toString().slice(-6)}`;
 
-    const merchantAccountInfo = emvField('26',
+    const merchantAccountInfo = emvField(
+        '26',
         emvField('00', 'BR.GOV.BCB.PIX') +
         emvField('01', PIX_KEY)
     );
@@ -66,13 +70,17 @@ function generatePixPayload(amount) {
 
 function formatDateForDisplay(dateStr) {
     if (!dateStr) return '';
+
     const [year, month, day] = dateStr.split('-');
+
     if (!year || !month || !day) return dateStr;
+
     return `${day}/${month}/${year}`;
 }
 
 function formatSlotForDisplay(slot) {
     if (!slot) return '';
+
     return `${formatDateForDisplay(state.selectedDate)} às ${slot.time}`;
 }
 
@@ -84,19 +92,26 @@ function setAvailability(status, message) {
 
 function renderAvailabilityStatus() {
     const statusEl = document.getElementById('shop-status');
+
     if (!statusEl) return;
 
     statusEl.textContent = state.availabilityMessage;
     statusEl.className = 'shop-status';
 
-    if (state.availabilityStatus === 'open') statusEl.classList.add('status-open');
-    else if (state.availabilityStatus === 'closed') statusEl.classList.add('status-closed');
-    else if (state.availabilityStatus === 'error') statusEl.classList.add('status-error');
-    else statusEl.classList.add('status-neutral');
+    if (state.availabilityStatus === 'open') {
+        statusEl.classList.add('status-open');
+    } else if (state.availabilityStatus === 'closed') {
+        statusEl.classList.add('status-closed');
+    } else if (state.availabilityStatus === 'error') {
+        statusEl.classList.add('status-error');
+    } else {
+        statusEl.classList.add('status-neutral');
+    }
 }
 
 function renderSlots() {
     const slotsGrid = document.getElementById('slots-grid');
+
     if (!slotsGrid) return;
 
     slotsGrid.innerHTML = '';
@@ -121,8 +136,9 @@ function renderSlots() {
         return;
     }
 
-    state.availabilitySlots.forEach(slot => {
+    state.availabilitySlots.forEach((slot) => {
         const btn = document.createElement('button');
+
         btn.type = 'button';
         btn.className = 'slot-button';
         btn.textContent = slot.time;
@@ -155,11 +171,17 @@ async function loadAvailabilityByDate(date) {
     updateUI();
 
     try {
-        const response = await fetch(`/functions/v1/disponibilidade?date=${encodeURIComponent(date)}`);
-        if (!response.ok) throw new Error('Falha na consulta de disponibilidade');
+        const response = await fetch(
+            `${supabaseUrl}/functions/v1/disponibilidade?date=${encodeURIComponent(date)}`
+        );
+
+        if (!response.ok) {
+            throw new Error('Falha na consulta de disponibilidade');
+        }
 
         const data = await response.json();
         const slots = Array.isArray(data?.slots) ? data.slots : [];
+
         state.availabilitySlots = slots;
 
         if (data?.status === 'closed') {
@@ -173,8 +195,10 @@ async function loadAvailabilityByDate(date) {
         renderSlots();
     } catch (error) {
         console.error(error);
+
         state.availabilitySlots = [];
         state.selectedSlot = null;
+
         setAvailability('error', 'Erro ao consultar disponibilidade');
         renderSlots();
     } finally {
@@ -183,32 +207,54 @@ async function loadAvailabilityByDate(date) {
 }
 
 // Seleção de Serviços
-document.querySelectorAll('.service-card').forEach(card => {
+document.querySelectorAll('.service-card').forEach((card) => {
     card.querySelector('.service-select').addEventListener('click', () => {
         const name = card.dataset.service;
         const price = Number(card.dataset.price);
 
         if (card.classList.contains('selected')) {
             card.classList.remove('selected');
-            state.selectedServices = state.selectedServices.filter(s => s.name !== name);
+            state.selectedServices = state.selectedServices.filter((s) => s.name !== name);
             state.totalPrice -= price;
         } else {
             card.classList.add('selected');
             state.selectedServices.push({ name, price });
             state.totalPrice += price;
         }
+
         updateUI();
     });
 });
 
 // Seleção de Pagamento
-document.querySelectorAll('.payment-button').forEach(btn => {
+document.querySelectorAll('.payment-button').forEach((btn) => {
     btn.addEventListener('click', () => {
         state.paymentMethod = btn.dataset.method;
-        document.querySelectorAll('.payment-button').forEach(b => b.classList.toggle('active', b === btn));
+
+        document.querySelectorAll('.payment-button').forEach((b) => {
+            b.classList.toggle('active', b === btn);
+        });
+
+        updatePaymentMessage();
         updateUI();
     });
 });
+
+function updatePaymentMessage() {
+    const paymentMessage = document.getElementById('payment-message');
+
+    if (!paymentMessage) return;
+
+    if (state.paymentMethod === 'onsite') {
+        paymentMessage.textContent = 'Pague presencialmente no dia do atendimento.';
+    } else if (state.paymentMethod === 'pix') {
+        paymentMessage.textContent = 'Pagamento via Pix.';
+    } else if (state.paymentMethod === 'card') {
+        paymentMessage.textContent = 'Pagamento seguro com cartão.';
+    } else {
+        paymentMessage.textContent = '';
+    }
+}
 
 function updateUI() {
     document.getElementById('total-value').textContent = `R$ ${state.totalPrice.toFixed(2)}`;
@@ -220,6 +266,7 @@ function updateUI() {
     const hasPaymentMethod = Boolean(state.paymentMethod);
 
     const ready = hasServices && hasName && hasDate && hasSlot && hasPaymentMethod;
+
     document.getElementById('confirm-btn').disabled = !ready;
 }
 
@@ -232,11 +279,12 @@ document.getElementById('client-name').addEventListener('input', updateUI);
 
 async function confirmBooking() {
     const btn = document.getElementById('confirm-btn');
+
     btn.textContent = 'Processando...';
     btn.disabled = true;
 
     const name = document.getElementById('client-name').value;
-    const services = state.selectedServices.map(s => s.name).join(', ');
+    const services = state.selectedServices.map((s) => s.name).join(', ');
     const slotText = formatSlotForDisplay(state.selectedSlot);
 
     try {
@@ -254,10 +302,15 @@ async function confirmBooking() {
             };
         } else if (state.paymentMethod === 'card') {
             const { data, error } = await supabaseClient.functions.invoke('criar-pagamento', {
-                body: { items: state.selectedServices, method: 'card', total: state.totalPrice }
+                body: {
+                    items: state.selectedServices,
+                    method: 'card',
+                    total: state.totalPrice
+                }
             });
 
             if (error) throw error;
+
             window.location.href = data.init_point;
         } else if (state.paymentMethod === 'onsite') {
             alert('Pagamento na barbearia selecionado. A reserva real será implementada no próximo commit.');
@@ -273,8 +326,10 @@ async function confirmBooking() {
 
 function copyPixCode() {
     const input = document.getElementById('pix-copy-paste');
+
     input.select();
     navigator.clipboard.writeText(input.value);
+
     alert('Código copiado!');
 }
 
@@ -285,10 +340,12 @@ function closePixModal() {
 document.getElementById('confirm-btn').addEventListener('click', confirmBooking);
 document.getElementById('copy-pix-btn')?.addEventListener('click', copyPixCode);
 document.getElementById('close-pix-modal')?.addEventListener('click', closePixModal);
+
 document.getElementById('pix-modal')?.addEventListener('click', (event) => {
     if (event.target.id === 'pix-modal') closePixModal();
 });
 
 renderAvailabilityStatus();
 renderSlots();
+updatePaymentMessage();
 updateUI();
