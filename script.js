@@ -68,6 +68,18 @@ function generatePixPayload(amount) {
     return `${payload}${crc}`;
 }
 
+function normalizeDateTimeWithOffset(value) {
+    if (!value || typeof value !== 'string') return value;
+
+    // Corrige formato vindo do PostgreSQL: 2026-04-25T08:00:00-03
+    // para formato ISO válido: 2026-04-25T08:00:00-03:00
+    if (/T\d{2}:\d{2}:\d{2}[+-]\d{2}$/.test(value)) {
+        return `${value}:00`;
+    }
+
+    return value;
+}
+
 function formatDateForDisplay(dateStr) {
     if (!dateStr) return '';
 
@@ -145,7 +157,12 @@ function renderSlots() {
         btn.classList.toggle('selected', state.selectedSlot?.start === slot.start);
 
         btn.addEventListener('click', () => {
-            state.selectedSlot = slot;
+            state.selectedSlot = {
+                ...slot,
+                start: normalizeDateTimeWithOffset(slot.start),
+                end: normalizeDateTimeWithOffset(slot.end)
+            };
+
             renderSlots();
             updateUI();
         });
@@ -182,11 +199,15 @@ async function loadAvailabilityByDate(date) {
         const data = await response.json();
         const slots = Array.isArray(data?.slots) ? data.slots : [];
 
-        state.availabilitySlots = slots;
+        state.availabilitySlots = slots.map((slot) => ({
+            ...slot,
+            start: normalizeDateTimeWithOffset(slot.start),
+            end: normalizeDateTimeWithOffset(slot.end)
+        }));
 
         if (data?.status === 'closed') {
             setAvailability('closed', 'Barbearia fechada');
-        } else if (!slots.length) {
+        } else if (!state.availabilitySlots.length) {
             setAvailability('open', 'Sem horários disponíveis');
         } else {
             setAvailability('open', 'Barbearia aberta • Escolha um horário');
@@ -297,6 +318,9 @@ async function createReservation() {
         throw new Error('Selecione um horário válido.');
     }
 
+    const appointmentStart = normalizeDateTimeWithOffset(state.selectedSlot.start);
+    const appointmentEnd = normalizeDateTimeWithOffset(state.selectedSlot.end);
+
     const response = await fetch(`${supabaseUrl}/functions/v1/criar-reserva`, {
         method: 'POST',
         headers: {
@@ -308,8 +332,8 @@ async function createReservation() {
             selected_services: state.selectedServices,
             total_price: state.totalPrice,
             payment_method: paymentMethod,
-            appointment_start: state.selectedSlot.start,
-            appointment_end: state.selectedSlot.end
+            appointment_start: appointmentStart,
+            appointment_end: appointmentEnd
         })
     });
 
