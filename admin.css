@@ -350,9 +350,9 @@ button {
 .appointments-table-head,
 .appointment-row {
     display: grid;
-    grid-template-columns: 0.75fr 1.1fr 1.35fr 0.8fr 1fr 1fr;
+    grid-template-columns: 0.7fr 1fr 1.35fr 0.8fr 1fr 1fr;
     gap: 12px;
-    align-items: center;
+    align-items: start;
 }
 
 .appointments-table-head {
@@ -371,6 +371,7 @@ button {
 }
 
 .appointment-row {
+    position: relative;
     padding: 16px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
@@ -406,6 +407,15 @@ button {
     display: block;
 }
 
+.mini-text {
+    display: inline-block;
+    margin-top: 6px;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+/* STATUS */
 .status-pill {
     display: inline-flex;
     width: fit-content;
@@ -422,7 +432,8 @@ button {
 }
 
 .status-confirmed,
-.status-approved {
+.status-approved,
+.status-completed {
     color: #9bf0c9;
     border-color: rgba(104, 211, 145, 0.45);
     background: rgba(104, 211, 145, 0.10);
@@ -443,9 +454,72 @@ button {
     background: rgba(255, 119, 119, 0.10);
 }
 
+.status-no_show {
+    color: #ffe08a;
+    border-color: rgba(246, 196, 83, 0.45);
+    background: rgba(246, 196, 83, 0.10);
+}
+
 .status-default {
     color: var(--text-secondary);
     background: rgba(255, 255, 255, 0.05);
+}
+
+/* AÇÕES */
+.appointment-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.action-btn {
+    min-height: 36px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text-primary);
+    font-size: 0.78rem;
+    font-weight: 900;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.action-btn:hover {
+    transform: translateY(-1px);
+    border-color: rgba(212, 175, 55, 0.65);
+    color: var(--accent-color);
+}
+
+.action-paid {
+    border-color: rgba(104, 211, 145, 0.42);
+    color: #9bf0c9;
+}
+
+.action-complete {
+    border-color: rgba(212, 175, 55, 0.45);
+    color: var(--accent-color);
+}
+
+.action-noshow {
+    border-color: rgba(246, 196, 83, 0.42);
+    color: #ffe08a;
+}
+
+.action-cancel {
+    border-color: rgba(255, 119, 119, 0.42);
+    color: #ffb0b0;
+}
+
+.action-btn:disabled {
+    opacity: 0.25;
+    cursor: not-allowed;
+    transform: none;
+    filter: grayscale(1);
 }
 
 .empty-state {
@@ -488,7 +562,7 @@ button {
         background: rgba(255, 255, 255, 0.025);
     }
 
-    .appointment-row > div {
+    .appointment-row > div:not(.appointment-actions) {
         display: flex;
         justify-content: space-between;
         gap: 14px;
@@ -496,12 +570,7 @@ button {
         padding-bottom: 10px;
     }
 
-    .appointment-row > div:last-child {
-        border-bottom: none;
-        padding-bottom: 0;
-    }
-
-    .appointment-row > div::before {
+    .appointment-row > div:not(.appointment-actions)::before {
         content: attr(data-label);
         color: var(--text-secondary);
         font-size: 0.82rem;
@@ -512,6 +581,15 @@ button {
     .appointment-service,
     .appointment-value {
         text-align: right;
+    }
+
+    .appointment-actions {
+        grid-column: auto;
+        flex-direction: column;
+    }
+
+    .action-btn {
+        width: 100%;
     }
 }
 
@@ -529,7 +607,7 @@ button {
         align-items: stretch;
     }
 
-    .appointment-row > div {
+    .appointment-row > div:not(.appointment-actions) {
         flex-direction: column;
         text-align: left;
     }
