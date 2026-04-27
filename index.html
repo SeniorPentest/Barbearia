@@ -57,72 +57,12 @@
                     <h2>Nossos Serviços</h2>
                     <p>Selecione quantos desejar. No celular, arraste para o lado.</p>
                 </div>
-                
-                <div class="service-grid">
-                    <div class="service-card" data-service="Corte + Barba" data-price="90">
-                        <div class="card-head">
-                            <div class="service-title">
-                                <span class="service-icon">
-                                    <img src="assets/icons/corte-barba.svg" alt="">
-                                </span>
-                                <h3>Corte + Barba</h3>
-                            </div>
-                            <span class="price-tag">R$ 90,00</span>
-                        </div>
-                        <button class="service-select" type="button">
-                            <span>Selecionar</span>
-                            <span class="select-arrow">→</span>
-                        </button>
-                    </div>
 
-                    <div class="service-card" data-service="Barba" data-price="55">
-                        <div class="card-head">
-                            <div class="service-title">
-                                <span class="service-icon">
-                                    <img src="assets/icons/barba.svg" alt="">
-                                </span>
-                                <h3>Barba</h3>
-                            </div>
-                            <span class="price-tag">R$ 55,00</span>
-                        </div>
-                        <button class="service-select" type="button">
-                            <span>Selecionar</span>
-                            <span class="select-arrow">→</span>
-                        </button>
-                    </div>
-
-                    <div class="service-card" data-service="Corte Clássico" data-price="45">
-                        <div class="card-head">
-                            <div class="service-title">
-                                <span class="service-icon">
-                                    <img src="assets/icons/corte.svg" alt="">
-                                </span>
-                                <h3>Corte Clássico</h3>
-                            </div>
-                            <span class="price-tag">R$ 45,00</span>
-                        </div>
-                        <button class="service-select" type="button">
-                            <span>Selecionar</span>
-                            <span class="select-arrow">→</span>
-                        </button>
-                    </div>
-
-                    <div class="service-card" data-service="Sobrancelha" data-price="15">
-                        <div class="card-head">
-                            <div class="service-title">
-                                <span class="service-icon">
-                                    <img src="assets/icons/sobrancelha.svg" alt="">
-                                </span>
-                                <h3>Sobrancelha</h3>
-                            </div>
-                            <span class="price-tag">R$ 15,00</span>
-                        </div>
-                        <button class="service-select" type="button">
-                            <span>Selecionar</span>
-                            <span class="select-arrow">→</span>
-                        </button>
-                    </div>
+                <div id="services-loading" class="services-loading">
+                    Carregando serviços...
                 </div>
+
+                <div id="service-grid" class="service-grid" aria-live="polite"></div>
             </div>
         </section>
 
@@ -325,6 +265,6 @@
         </div>
     </div>
 
-    <script src="script.js?v=7"></script>
+    <script src="script.js?v=8"></script>
 </body>
 </html>

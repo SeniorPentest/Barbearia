@@ -8,6 +8,7 @@ const MERCHANT_NAME = 'Barbearia Premium';
 const MERCHANT_CITY = 'Sao Paulo';
 
 const state = {
+    services: [],
     selectedServices: [],
     totalPrice: 0,
     paymentMethod: 'pix',
@@ -105,6 +106,13 @@ function formatPhoneInput(value) {
     return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
 }
 
+function formatCurrency(value) {
+    return Number(value || 0).toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
+    });
+}
+
 function formatDateForDisplay(dateStr) {
     if (!dateStr) return '';
 
@@ -119,6 +127,15 @@ function formatSlotForDisplay(slot) {
     if (!slot) return '';
 
     return `${formatDateForDisplay(state.selectedDate)} às ${slot.time}`;
+}
+
+function escapeHtml(value) {
+    return String(value || '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
 }
 
 function setAvailability(status, message) {
@@ -252,23 +269,119 @@ async function loadAvailabilityByDate(date) {
     }
 }
 
-document.querySelectorAll('.service-card').forEach((card) => {
-    card.querySelector('.service-select').addEventListener('click', () => {
-        const name = card.dataset.service;
-        const price = Number(card.dataset.price);
+async function loadServices() {
+    const grid = document.getElementById('service-grid');
+    const loading = document.getElementById('services-loading');
 
-        if (card.classList.contains('selected')) {
-            card.classList.remove('selected');
-            state.selectedServices = state.selectedServices.filter((s) => s.name !== name);
-            state.totalPrice -= price;
-        } else {
-            card.classList.add('selected');
-            state.selectedServices.push({ name, price });
-            state.totalPrice += price;
+    if (!grid) return;
+
+    if (loading) {
+        loading.textContent = 'Carregando serviços...';
+        loading.style.display = 'block';
+    }
+
+    grid.innerHTML = '';
+
+    try {
+        const { data, error } = await supabaseClient
+            .from('services')
+            .select('id, name, price, duration_minutes, icon_url, description, is_active, sort_order')
+            .eq('is_active', true)
+            .order('sort_order', { ascending: true })
+            .order('name', { ascending: true });
+
+        if (error) {
+            throw error;
         }
 
-        updateUI();
-    });
+        state.services = Array.isArray(data) ? data : [];
+
+        renderServices();
+
+        if (loading) {
+            loading.style.display = 'none';
+        }
+    } catch (error) {
+        console.error(error);
+
+        if (loading) {
+            loading.textContent = 'Erro ao carregar serviços. Tente atualizar a página.';
+            loading.style.display = 'block';
+        }
+    }
+}
+
+function renderServices() {
+    const grid = document.getElementById('service-grid');
+
+    if (!grid) return;
+
+    if (!state.services.length) {
+        grid.innerHTML = '<p class="slots-message">Nenhum serviço disponível no momento.</p>';
+        return;
+    }
+
+    grid.innerHTML = state.services.map((service) => {
+        const price = Number(service.price || 0);
+        const isSelected = state.selectedServices.some((item) => item.id === service.id);
+        const iconUrl = service.icon_url || 'assets/icons/corte.svg';
+
+        return `
+            <div class="service-card ${isSelected ? 'selected' : ''}" data-service-id="${escapeHtml(service.id)}">
+                <div class="card-head">
+                    <div class="service-title">
+                        <span class="service-icon">
+                            <img src="${escapeHtml(iconUrl)}" alt="">
+                        </span>
+                        <h3>${escapeHtml(service.name)}</h3>
+                    </div>
+                    <span class="price-tag">${formatCurrency(price)}</span>
+                </div>
+                <button class="service-select" type="button">
+                    <span>${isSelected ? 'Selecionado' : 'Selecionar'}</span>
+                    <span class="select-arrow">→</span>
+                </button>
+            </div>
+        `;
+    }).join('');
+}
+
+function toggleService(serviceId) {
+    const service = state.services.find((item) => item.id === serviceId);
+
+    if (!service) return;
+
+    const alreadySelected = state.selectedServices.some((item) => item.id === serviceId);
+
+    if (alreadySelected) {
+        state.selectedServices = state.selectedServices.filter((item) => item.id !== serviceId);
+    } else {
+        state.selectedServices.push({
+            id: service.id,
+            name: service.name,
+            price: Number(service.price || 0),
+            duration_minutes: Number(service.duration_minutes || 45)
+        });
+    }
+
+    state.totalPrice = state.selectedServices.reduce((sum, item) => {
+        return sum + Number(item.price || 0);
+    }, 0);
+
+    renderServices();
+    updateUI();
+}
+
+document.getElementById('service-grid')?.addEventListener('click', (event) => {
+    const button = event.target.closest('.service-select');
+    if (!button) return;
+
+    const card = button.closest('.service-card');
+    const serviceId = card?.dataset?.serviceId;
+
+    if (!serviceId) return;
+
+    toggleService(serviceId);
 });
 
 document.querySelectorAll('.payment-button').forEach((btn) => {
@@ -301,28 +414,37 @@ function updatePaymentMessage() {
 }
 
 function updateUI() {
-    document.getElementById('total-value').textContent = `R$ ${state.totalPrice.toFixed(2)}`;
+    const totalValue = document.getElementById('total-value');
+    const confirmBtn = document.getElementById('confirm-btn');
+    const clientName = document.getElementById('client-name');
+    const clientPhone = document.getElementById('client-phone');
+
+    if (totalValue) {
+        totalValue.textContent = formatCurrency(state.totalPrice);
+    }
 
     const hasServices = state.selectedServices.length > 0;
-    const hasName = Boolean(document.getElementById('client-name').value.trim());
-    const hasPhone = isValidBrazilPhone(document.getElementById('client-phone').value);
+    const hasName = Boolean(clientName?.value.trim());
+    const hasPhone = isValidBrazilPhone(clientPhone?.value);
     const hasDate = Boolean(state.selectedDate);
     const hasSlot = Boolean(state.selectedSlot?.start && state.selectedSlot?.end);
     const hasPaymentMethod = Boolean(state.paymentMethod);
 
     const ready = hasServices && hasName && hasPhone && hasDate && hasSlot && hasPaymentMethod;
 
-    document.getElementById('confirm-btn').disabled = !ready;
+    if (confirmBtn) {
+        confirmBtn.disabled = !ready;
+    }
 }
 
-document.getElementById('appointment-date').addEventListener('change', async (event) => {
+document.getElementById('appointment-date')?.addEventListener('change', async (event) => {
     state.selectedDate = event.target.value;
     await loadAvailabilityByDate(state.selectedDate);
 });
 
-document.getElementById('client-name').addEventListener('input', updateUI);
+document.getElementById('client-name')?.addEventListener('input', updateUI);
 
-document.getElementById('client-phone').addEventListener('input', (event) => {
+document.getElementById('client-phone')?.addEventListener('input', (event) => {
     event.target.value = formatPhoneInput(event.target.value);
     updateUI();
 });
@@ -402,7 +524,7 @@ async function confirmBooking() {
             document.getElementById('pix-modal').classList.add('open');
 
             document.getElementById('btn-check-payment').onclick = () => {
-                const msg = `Olá! Já paguei via Pix.\nCliente: ${name}\nWhatsApp: ${phone}\nServiços: ${services}\nTotal: R$ ${state.totalPrice.toFixed(2)}${slotText ? `\nHorário: ${slotText}` : ''}\nReserva: ${reservation.appointment_id}\nEnvio o comprovante para confirmar?`;
+                const msg = `Olá! Já paguei via Pix.\nCliente: ${name}\nWhatsApp: ${phone}\nServiços: ${services}\nTotal: ${formatCurrency(state.totalPrice)}${slotText ? `\nHorário: ${slotText}` : ''}\nReserva: ${reservation.appointment_id}\nEnvio o comprovante para confirmar?`;
                 window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
             };
 
@@ -475,15 +597,12 @@ function resetBookingForm() {
     state.availabilitySlots = [];
     state.selectedDate = '';
 
-    document.querySelectorAll('.service-card').forEach((card) => {
-        card.classList.remove('selected');
-    });
-
     document.getElementById('client-name').value = '';
     document.getElementById('client-phone').value = '';
     document.getElementById('appointment-date').value = '';
 
     setAvailability('idle', 'Selecione uma data para ver horários');
+    renderServices();
     renderSlots();
     updateUI();
 }
@@ -501,7 +620,7 @@ function closePixModal() {
     document.getElementById('pix-modal').classList.remove('open');
 }
 
-document.getElementById('confirm-btn').addEventListener('click', confirmBooking);
+document.getElementById('confirm-btn')?.addEventListener('click', confirmBooking);
 document.getElementById('copy-pix-btn')?.addEventListener('click', copyPixCode);
 document.getElementById('close-pix-modal')?.addEventListener('click', closePixModal);
 
@@ -520,7 +639,12 @@ document.getElementById('success-new-booking-btn')?.addEventListener('click', ()
     resetBookingForm();
 });
 
-renderAvailabilityStatus();
-renderSlots();
-updatePaymentMessage();
-updateUI();
+async function initializePage() {
+    renderAvailabilityStatus();
+    renderSlots();
+    updatePaymentMessage();
+    updateUI();
+    await loadServices();
+}
+
+initializePage();
