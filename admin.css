@@ -802,3 +802,106 @@ button {
         width: 100%;
     }
 }
+
+/* FIX ADMIN SERVICES ICON SIZE */
+.services-list-card {
+    overflow: hidden;
+}
+
+.services-admin-list {
+    width: 100%;
+}
+
+.admin-service-item {
+    display: grid;
+    grid-template-columns: 54px 1fr auto;
+    gap: 14px;
+    align-items: center;
+    width: 100%;
+    padding: 14px;
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.025);
+}
+
+.admin-service-icon {
+    width: 54px;
+    height: 54px;
+    min-width: 54px;
+    min-height: 54px;
+    max-width: 54px;
+    max-height: 54px;
+    display: grid;
+    place-items: center;
+    border-radius: 14px;
+    border: 1px solid rgba(212, 175, 55, 0.35);
+    background: rgba(212, 175, 55, 0.08);
+    overflow: hidden;
+}
+
+.admin-service-icon img {
+    width: 34px !important;
+    height: 34px !important;
+    max-width: 34px !important;
+    max-height: 34px !important;
+    object-fit: contain;
+    display: block;
+}
+
+.admin-service-info {
+    min-width: 0;
+}
+
+.admin-service-info strong {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--text-primary);
+}
+
+.admin-service-info span {
+    display: block;
+    color: var(--text-secondary);
+    font-size: 0.84rem;
+    line-height: 1.45;
+    word-break: break-word;
+}
+
+.admin-service-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.admin-service-actions button {
+    min-height: 34px;
+    padding: 7px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text-primary);
+    font-size: 0.78rem;
+    font-weight: 900;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.admin-service-actions button:hover {
+    border-color: rgba(212, 175, 55, 0.65);
+    color: var(--accent-color);
+}
+
+@media (max-width: 900px) {
+    .admin-service-item {
+        grid-template-columns: 54px 1fr;
+    }
+
+    .admin-service-actions {
+        grid-column: 1 / -1;
+        justify-content: stretch;
+    }
+
+    .admin-service-actions button {
+        flex: 1;
+    }
+}
