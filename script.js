@@ -2,12 +2,13 @@ const supabaseUrl = 'https://kifhzxrvkfvmjlrtdeif.supabase.co';
 const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpZmh6eHJ2a2Z2bWpscnRkZWlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxODM5MTcsImV4cCI6MjA5MTc1OTkxN30.z5oZ1KrN7cVkDWdQoL8M5yE8vLPm5h6x5pbvQOcmjaY';
 const supabaseClient = supabase.createClient(supabaseUrl, supabaseAnonKey);
 
-const PIX_KEY = '5511915723418';
-const WHATSAPP_NUMBER = '5511915723418';
-const MERCHANT_NAME = 'Barbearia Premium';
-const MERCHANT_CITY = 'Sao Paulo';
+let PIX_KEY = '5511915723418';
+let WHATSAPP_NUMBER = '5511915723418';
+let MERCHANT_NAME = 'Barbearia Premium';
+let MERCHANT_CITY = 'Sao Paulo';
 
 const state = {
+    profile: null,
     services: [],
     selectedServices: [],
     totalPrice: 0,
@@ -267,6 +268,160 @@ async function loadAvailabilityByDate(date) {
     } finally {
         updateUI();
     }
+}
+
+
+async function loadBarbershopProfile() {
+    try {
+        const { data, error } = await supabaseClient
+            .from('barbershop_profile')
+            .select(`
+                name,
+                subtitle,
+                hero_title,
+                hero_description,
+                logo_url,
+                instagram_url,
+                whatsapp_number,
+                pix_key,
+                address,
+                city,
+                payment_pix_enabled,
+                payment_card_enabled,
+                payment_onsite_enabled
+            `)
+            .eq('is_active', true)
+            .limit(1)
+            .maybeSingle();
+
+        if (error) {
+            throw error;
+        }
+
+        if (!data) {
+            return;
+        }
+
+        state.profile = data;
+
+        PIX_KEY = data.pix_key || PIX_KEY;
+        WHATSAPP_NUMBER = data.whatsapp_number || WHATSAPP_NUMBER;
+        MERCHANT_NAME = data.name || MERCHANT_NAME;
+        MERCHANT_CITY = data.city || MERCHANT_CITY;
+
+        applyBarbershopProfile(data);
+    } catch (error) {
+        console.error('Erro ao carregar dados da barbearia:', error);
+    }
+}
+
+function applyBarbershopProfile(profile) {
+    document.title = profile.name || 'Barbearia Premium';
+
+    document.querySelectorAll('.brand-logo-img').forEach((img) => {
+        if (profile.logo_url) {
+            img.src = profile.logo_url;
+        }
+
+        img.alt = profile.name || 'Logo da barbearia';
+    });
+
+    document.querySelectorAll('.brand-name').forEach((el) => {
+        el.textContent = profile.name || 'Barbearia Premium';
+    });
+
+    document.querySelectorAll('.brand-kicker').forEach((el) => {
+        el.textContent = profile.subtitle || 'Studio Masculino';
+    });
+
+    const heroTitle = document.querySelector('.hero-content h1');
+    if (heroTitle && profile.hero_title) {
+        heroTitle.innerHTML = escapeHtml(profile.hero_title).replaceAll(',', ',<br>');
+    }
+
+    const heroDescription = document.querySelector('.hero-content p');
+    if (heroDescription && profile.hero_description) {
+        heroDescription.textContent = profile.hero_description;
+    }
+
+    const footerText = document.querySelector('.site-footer p');
+    if (footerText && profile.name) {
+        footerText.textContent = `© 2026 ${profile.name}. Todos os direitos reservados.`;
+    }
+
+    const addressText = document.getElementById('barbershop-address-text');
+    if (addressText && profile.address) {
+        addressText.textContent = profile.address;
+    }
+
+    const contactText = document.getElementById('barbershop-contact-text');
+    if (contactText && profile.whatsapp_number) {
+        contactText.textContent = `WhatsApp: ${formatBrazilPhone(profile.whatsapp_number)}`;
+    }
+
+    applyPaymentAvailability(profile);
+}
+
+function formatBrazilPhone(value) {
+    const digits = onlyDigits(value);
+
+    if (digits.length === 13 && digits.startsWith('55')) {
+        return formatPhoneInput(digits.slice(2));
+    }
+
+    if (digits.length === 11 || digits.length === 10) {
+        return formatPhoneInput(digits);
+    }
+
+    return value;
+}
+
+function applyPaymentAvailability(profile) {
+    const pixButton = document.querySelector('.payment-button[data-method="pix"]');
+    const cardButton = document.querySelector('.payment-button[data-method="card"]');
+    const onsiteButton = document.querySelector('.payment-button[data-method="onsite"]');
+
+    const paymentOptions = [
+        {
+            button: pixButton,
+            method: 'pix',
+            enabled: profile.payment_pix_enabled !== false
+        },
+        {
+            button: cardButton,
+            method: 'card',
+            enabled: profile.payment_card_enabled !== false
+        },
+        {
+            button: onsiteButton,
+            method: 'onsite',
+            enabled: profile.payment_onsite_enabled !== false
+        }
+    ];
+
+    paymentOptions.forEach((option) => {
+        if (!option.button) return;
+
+        option.button.hidden = !option.enabled;
+        option.button.disabled = !option.enabled;
+    });
+
+    const currentOption = paymentOptions.find((option) => option.method === state.paymentMethod);
+
+    if (!currentOption || !currentOption.enabled) {
+        const firstEnabled = paymentOptions.find((option) => option.enabled && option.button);
+
+        if (firstEnabled) {
+            state.paymentMethod = firstEnabled.method;
+
+            document.querySelectorAll('.payment-button').forEach((button) => {
+                button.classList.toggle('active', button.dataset.method === state.paymentMethod);
+            });
+        }
+    }
+
+    updatePaymentMessage();
+    updateUI();
 }
 
 async function loadServices() {
@@ -644,6 +799,7 @@ async function initializePage() {
     renderSlots();
     updatePaymentMessage();
     updateUI();
+    await loadBarbershopProfile();
     await loadServices();
 }
 
