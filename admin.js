@@ -31,6 +31,14 @@ const statConfirmed = document.getElementById('stat-confirmed');
 const statPending = document.getElementById('stat-pending');
 const statRevenue = document.getElementById('stat-revenue');
 
+const cashTotal = document.getElementById('cash-total');
+const cashCash = document.getElementById('cash-cash');
+const cashPix = document.getElementById('cash-pix');
+const cashDebit = document.getElementById('cash-debit');
+const cashCredit = document.getElementById('cash-credit');
+const cashCourtesy = document.getElementById('cash-courtesy');
+const cashCompletedCount = document.getElementById('cash-completed-count');
+
 const serviceForm = document.getElementById('service-form');
 const serviceFormTitle = document.getElementById('service-form-title');
 const serviceIdInput = document.getElementById('service-id');
@@ -112,6 +120,19 @@ function formatServices(services) {
     return services
         .map((service) => service?.name || 'Serviço')
         .join(', ');
+}
+
+function formatFinalPaymentMethod(method) {
+    const labels = {
+        cash: 'Dinheiro',
+        pix: 'Pix',
+        debit: 'Débito',
+        credit: 'Crédito',
+        courtesy: 'Cortesia',
+        other: 'Outro'
+    };
+
+    return labels[method] || method || '-';
 }
 
 function formatPaymentMethod(method) {
@@ -243,6 +264,11 @@ async function loadAppointments() {
             client_phone,
             selected_services,
             total_price,
+            final_payment_method,
+            final_total,
+            paid_at,
+            completed_at,
+            admin_notes,
             appointment_start,
             appointment_end,
             payment_method,
@@ -316,6 +342,7 @@ function renderAppointments() {
                     <span class="status-pill ${paymentStatusClass}">${escapeHtml(paymentStatus)}</span>
                     <br>
                     <span class="mini-text">${escapeHtml(paymentMethod)}</span>
+                    ${appointment.final_payment_method ? `<br><span class="mini-text">Final: ${escapeHtml(formatFinalPaymentMethod(appointment.final_payment_method))} • ${formatCurrency(appointment.final_total || appointment.total_price)}</span>` : ''}
                 </div>
 
                 <div data-label="Status">
@@ -354,10 +381,42 @@ function updateStats(appointments) {
         return sum + Number(item.total_price || 0);
     }, 0);
 
+    const completedAppointments = appointments.filter((item) => item.booking_status === 'completed');
+
+    const cashSummary = completedAppointments.reduce((summary, item) => {
+        const method = item.final_payment_method || 'other';
+        const value = Number(item.final_total ?? item.total_price ?? 0);
+
+        summary.total += value;
+
+        if (method === 'cash') summary.cash += value;
+        else if (method === 'pix') summary.pix += value;
+        else if (method === 'debit') summary.debit += value;
+        else if (method === 'credit') summary.credit += value;
+        else if (method === 'courtesy') summary.courtesy += value;
+
+        return summary;
+    }, {
+        total: 0,
+        cash: 0,
+        pix: 0,
+        debit: 0,
+        credit: 0,
+        courtesy: 0
+    });
+
     statTotal.textContent = String(total);
     statConfirmed.textContent = String(confirmed);
     statPending.textContent = String(pending);
     statRevenue.textContent = formatCurrency(revenue);
+
+    if (cashTotal) cashTotal.textContent = formatCurrency(cashSummary.total);
+    if (cashCash) cashCash.textContent = formatCurrency(cashSummary.cash);
+    if (cashPix) cashPix.textContent = formatCurrency(cashSummary.pix);
+    if (cashDebit) cashDebit.textContent = formatCurrency(cashSummary.debit);
+    if (cashCredit) cashCredit.textContent = formatCurrency(cashSummary.credit);
+    if (cashCourtesy) cashCourtesy.textContent = formatCurrency(cashSummary.courtesy);
+    if (cashCompletedCount) cashCompletedCount.textContent = String(completedAppointments.length);
 }
 
 function getActionLabel(action) {
