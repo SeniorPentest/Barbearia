@@ -10,6 +10,7 @@ const state = {
     appointments: [],
     services: [],
     businessHours: [],
+    professionals: [],
     isActionLoading: false,
     isServiceSaving: false
 };
@@ -77,6 +78,22 @@ const profilePaymentCardInput = document.getElementById('profile-payment-card');
 const profilePaymentOnsiteInput = document.getElementById('profile-payment-onsite');
 const profileSubmitBtn = document.getElementById('profile-submit-btn');
 const profileStatus = document.getElementById('profile-status');
+
+const refreshProfessionalsBtn = document.getElementById('refresh-professionals-btn');
+const professionalForm = document.getElementById('professional-form');
+const professionalFormTitle = document.getElementById('professional-form-title');
+const professionalIdInput = document.getElementById('professional-id');
+const professionalNameInput = document.getElementById('professional-name');
+const professionalPhoneInput = document.getElementById('professional-phone');
+const professionalEmailInput = document.getElementById('professional-email');
+const professionalCommissionInput = document.getElementById('professional-commission');
+const professionalSortInput = document.getElementById('professional-sort');
+const professionalNotesInput = document.getElementById('professional-notes');
+const professionalActiveInput = document.getElementById('professional-active');
+const professionalSubmitBtn = document.getElementById('professional-submit-btn');
+const professionalCancelEditBtn = document.getElementById('professional-cancel-edit-btn');
+const professionalsStatus = document.getElementById('professionals-status');
+const professionalsAdminList = document.getElementById('professionals-admin-list');
 
 function formatCurrency(value) {
     return Number(value || 0).toLocaleString('pt-BR', {
@@ -911,7 +928,8 @@ function setProfileStatus(message, isError = false) {
     profileStatus.style.color = isError ? 'var(--danger-color)' : 'var(--success-color)';
 }
 
-async function loadBarbershopProfileAdmin() {
+async function loadBarbershopProfileAdmin(),
+            loadProfessionals() {
     if (!profileForm) return;
 
     setProfileStatus('Carregando dados...');
@@ -1023,7 +1041,8 @@ async function saveBarbershopProfile(event) {
         if (error) throw error;
 
         setProfileStatus('Dados da barbearia atualizados com sucesso.');
-        await loadBarbershopProfileAdmin();
+        await loadBarbershopProfileAdmin(),
+            loadProfessionals();
     } catch (error) {
         console.error(error);
         setProfileStatus(error.message || 'Erro ao salvar dados.', true);
@@ -1031,6 +1050,198 @@ async function saveBarbershopProfile(event) {
         profileSubmitBtn.disabled = false;
         profileSubmitBtn.textContent = 'Salvar dados';
     }
+}
+
+
+function setProfessionalsStatus(message, isError = false) {
+    if (!professionalsStatus) return;
+
+    professionalsStatus.textContent = message || '';
+    professionalsStatus.style.color = isError ? 'var(--danger-color)' : 'var(--success-color)';
+}
+
+async function loadProfessionals() {
+    if (!professionalsAdminList) return;
+
+    professionalsAdminList.innerHTML = '<div class="empty-state">Carregando profissionais...</div>';
+    setProfessionalsStatus('');
+
+    const { data, error } = await supabaseClient
+        .from('professionals')
+        .select('id, name, phone, email, commission_percent, is_active, sort_order, notes, created_at, updated_at')
+        .order('sort_order', { ascending: true })
+        .order('name', { ascending: true });
+
+    if (error) {
+        console.error(error);
+        professionalsAdminList.innerHTML = `<div class="empty-state">Erro ao carregar profissionais: ${escapeHtml(error.message)}</div>`;
+        return;
+    }
+
+    state.professionals = Array.isArray(data) ? data : [];
+    renderProfessionals();
+}
+
+function renderProfessionals() {
+    if (!professionalsAdminList) return;
+
+    if (!state.professionals.length) {
+        professionalsAdminList.innerHTML = '<div class="empty-state">Nenhum profissional cadastrado.</div>';
+        return;
+    }
+
+    professionalsAdminList.innerHTML = state.professionals.map((professional) => {
+        const statusClass = professional.is_active ? 'professional-status-active' : 'professional-status-inactive';
+        const statusText = professional.is_active ? 'Ativo' : 'Inativo';
+        const commission = Number(professional.commission_percent || 0).toFixed(2).replace('.', ',');
+
+        return `
+            <article class="admin-professional-item">
+                <div class="admin-professional-info">
+                    <strong>${escapeHtml(professional.name)}</strong>
+                    <span>Comissão: ${commission}% • Ordem ${Number(professional.sort_order || 0)}</span>
+                    ${professional.phone ? `<span>WhatsApp: ${escapeHtml(professional.phone)}</span>` : ''}
+                    ${professional.email ? `<span>Email: ${escapeHtml(professional.email)}</span>` : ''}
+                    <span class="${statusClass}">${statusText}</span>
+                    ${professional.notes ? `<span>${escapeHtml(professional.notes)}</span>` : ''}
+                </div>
+
+                <div class="admin-professional-actions">
+                    <button type="button" data-professional-action="edit" data-id="${escapeHtml(professional.id)}">Editar</button>
+                    <button type="button" data-professional-action="toggle" data-id="${escapeHtml(professional.id)}">
+                        ${professional.is_active ? 'Desativar' : 'Ativar'}
+                    </button>
+                </div>
+            </article>
+        `;
+    }).join('');
+}
+
+function resetProfessionalForm() {
+    if (!professionalForm) return;
+
+    professionalForm.reset();
+
+    professionalIdInput.value = '';
+    professionalCommissionInput.value = '0';
+    professionalSortInput.value = '0';
+    professionalActiveInput.checked = true;
+    professionalFormTitle.textContent = 'Novo profissional';
+    professionalSubmitBtn.textContent = 'Salvar profissional';
+    setProfessionalsStatus('');
+}
+
+function fillProfessionalForm(professional) {
+    professionalIdInput.value = professional.id || '';
+    professionalNameInput.value = professional.name || '';
+    professionalPhoneInput.value = professional.phone || '';
+    professionalEmailInput.value = professional.email || '';
+    professionalCommissionInput.value = Number(professional.commission_percent || 0);
+    professionalSortInput.value = Number(professional.sort_order || 0);
+    professionalNotesInput.value = professional.notes || '';
+    professionalActiveInput.checked = Boolean(professional.is_active);
+
+    professionalFormTitle.textContent = 'Editar profissional';
+    professionalSubmitBtn.textContent = 'Salvar alterações';
+    setProfessionalsStatus('Editando profissional selecionado.');
+
+    professionalForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function getProfessionalPayloadFromForm() {
+    const name = professionalNameInput.value.trim();
+    const commission = Number(professionalCommissionInput.value);
+    const sortOrder = Number(professionalSortInput.value || 0);
+
+    if (!name) {
+        throw new Error('Informe o nome do profissional.');
+    }
+
+    if (!Number.isFinite(commission) || commission < 0 || commission > 100) {
+        throw new Error('Informe uma comissão entre 0 e 100.');
+    }
+
+    return {
+        name,
+        phone: professionalPhoneInput.value.trim() || null,
+        email: professionalEmailInput.value.trim() || null,
+        commission_percent: commission,
+        sort_order: Number.isFinite(sortOrder) ? Math.round(sortOrder) : 0,
+        notes: professionalNotesInput.value.trim() || null,
+        is_active: professionalActiveInput.checked
+    };
+}
+
+async function saveProfessional(event) {
+    event.preventDefault();
+
+    if (!professionalForm) return;
+
+    professionalSubmitBtn.disabled = true;
+    professionalSubmitBtn.textContent = 'Salvando...';
+    setProfessionalsStatus('');
+
+    try {
+        const professionalId = professionalIdInput.value.trim();
+        const payload = getProfessionalPayloadFromForm();
+
+        if (professionalId) {
+            const { error } = await supabaseClient
+                .from('professionals')
+                .update(payload)
+                .eq('id', professionalId);
+
+            if (error) throw error;
+
+            setProfessionalsStatus('Profissional atualizado com sucesso.');
+        } else {
+            const { error } = await supabaseClient
+                .from('professionals')
+                .insert(payload);
+
+            if (error) throw error;
+
+            setProfessionalsStatus('Profissional criado com sucesso.');
+        }
+
+        resetProfessionalForm();
+        await loadProfessionals();
+    } catch (error) {
+        console.error(error);
+        setProfessionalsStatus(error.message || 'Erro ao salvar profissional.', true);
+    } finally {
+        professionalSubmitBtn.disabled = false;
+        professionalSubmitBtn.textContent = professionalIdInput.value ? 'Salvar alterações' : 'Salvar profissional';
+    }
+}
+
+async function toggleProfessionalActive(professionalId) {
+    const professional = state.professionals.find((item) => item.id === professionalId);
+
+    if (!professional) return;
+
+    const nextActive = !professional.is_active;
+    const actionText = nextActive ? 'ativar' : 'desativar';
+
+    const confirmed = window.confirm(`Tem certeza que deseja ${actionText} este profissional?`);
+
+    if (!confirmed) return;
+
+    setProfessionalsStatus('Atualizando profissional...');
+
+    const { error } = await supabaseClient
+        .from('professionals')
+        .update({ is_active: nextActive })
+        .eq('id', professionalId);
+
+    if (error) {
+        console.error(error);
+        setProfessionalsStatus(error.message || 'Erro ao atualizar profissional.', true);
+        return;
+    }
+
+    setProfessionalsStatus(nextActive ? 'Profissional ativado.' : 'Profissional desativado.');
+    await loadProfessionals();
 }
 
 async function initializeAdmin() {
@@ -1072,7 +1283,8 @@ async function initializeAdmin() {
             loadAppointments(),
             loadAdminServices(),
             loadBusinessHours(),
-            loadBarbershopProfileAdmin()
+            loadBarbershopProfileAdmin(),
+            loadProfessionals()
         ]);
     } catch (error) {
         console.error(error);
@@ -1127,7 +1339,8 @@ loginForm.addEventListener('submit', async (event) => {
             loadAppointments(),
             loadAdminServices(),
             loadBusinessHours(),
-            loadBarbershopProfileAdmin()
+            loadBarbershopProfileAdmin(),
+            loadProfessionals()
         ]);
     } catch (error) {
         console.error(error);
@@ -1146,6 +1359,7 @@ logoutBtn.addEventListener('click', async () => {
     state.services = [];
     state.businessHours = [];
     state.profile = null;
+    state.professionals = [];
 
     showLogin();
 });
@@ -1179,6 +1393,31 @@ refreshBusinessHoursBtn?.addEventListener('click', loadBusinessHours);
 refreshProfileBtn?.addEventListener('click', loadBarbershopProfileAdmin);
 
 profileForm?.addEventListener('submit', saveBarbershopProfile);
+
+refreshProfessionalsBtn?.addEventListener('click', loadProfessionals);
+
+professionalForm?.addEventListener('submit', saveProfessional);
+
+professionalCancelEditBtn?.addEventListener('click', resetProfessionalForm);
+
+professionalsAdminList?.addEventListener('click', async (event) => {
+    const button = event.target.closest('[data-professional-action][data-id]');
+
+    if (!button) return;
+
+    const professionalId = button.dataset.id;
+    const action = button.dataset.professionalAction;
+
+    if (action === 'edit') {
+        const professional = state.professionals.find((item) => item.id === professionalId);
+        if (professional) fillProfessionalForm(professional);
+        return;
+    }
+
+    if (action === 'toggle') {
+        await toggleProfessionalActive(professionalId);
+    }
+});
 
 businessHoursList?.addEventListener('click', async (event) => {
     const button = event.target.closest('[data-hour-action="save"]');

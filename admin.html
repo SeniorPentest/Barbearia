@@ -342,10 +342,83 @@
                         <p id="profile-status" class="form-error"></p>
                     </form>
                 </section>
+
+                <section class="professionals-admin-section">
+                    <div class="dashboard-head professionals-admin-head">
+                        <div>
+                            <h2>Profissionais</h2>
+                            <p>Cadastre barbeiros, comissão e controle quem aparece como ativo no sistema.</p>
+                        </div>
+
+                        <button id="refresh-professionals-btn" class="secondary-btn" type="button">Atualizar profissionais</button>
+                    </div>
+
+                    <div class="professionals-admin-grid">
+                        <form id="professional-form" class="professional-form-card">
+                            <input id="professional-id" type="hidden">
+
+                            <h3 id="professional-form-title">Novo profissional</h3>
+
+                            <div class="field">
+                                <label for="professional-name">Nome</label>
+                                <input id="professional-name" type="text" placeholder="Ex: Wallacy" required>
+                            </div>
+
+                            <div class="professional-form-row">
+                                <div class="field">
+                                    <label for="professional-phone">WhatsApp</label>
+                                    <input id="professional-phone" type="text" placeholder="5511999999999">
+                                </div>
+
+                                <div class="field">
+                                    <label for="professional-email">Email</label>
+                                    <input id="professional-email" type="email" placeholder="profissional@email.com">
+                                </div>
+                            </div>
+
+                            <div class="professional-form-row">
+                                <div class="field">
+                                    <label for="professional-commission">Comissão (%)</label>
+                                    <input id="professional-commission" type="number" min="0" max="100" step="0.01" value="0">
+                                </div>
+
+                                <div class="field">
+                                    <label for="professional-sort">Ordem</label>
+                                    <input id="professional-sort" type="number" step="1" value="0">
+                                </div>
+                            </div>
+
+                            <div class="field">
+                                <label for="professional-notes">Observações</label>
+                                <input id="professional-notes" type="text" placeholder="Ex: trabalha de terça a sábado">
+                            </div>
+
+                            <label class="checkbox-field">
+                                <input id="professional-active" type="checkbox" checked>
+                                <span>Profissional ativo</span>
+                            </label>
+
+                            <div class="service-form-actions">
+                                <button id="professional-submit-btn" class="primary-btn" type="submit">Salvar profissional</button>
+                                <button id="professional-cancel-edit-btn" class="ghost-btn" type="button">Cancelar edição</button>
+                            </div>
+
+                            <p id="professionals-status" class="form-error"></p>
+                        </form>
+
+                        <div class="professionals-list-card">
+                            <h3>Profissionais cadastrados</h3>
+
+                            <div id="professionals-admin-list" class="professionals-admin-list">
+                                <div class="empty-state">Carregando profissionais...</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
             </section>
         </section>
     </main>
 
-    <script src="admin.js?v=12"></script>
+    <script src="admin.js?v=13"></script>
 </body>
 </html>
