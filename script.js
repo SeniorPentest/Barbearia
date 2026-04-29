@@ -10,7 +10,9 @@ let MERCHANT_CITY = 'Sao Paulo';
 const state = {
     profile: null,
     services: [],
+    professionals: [],
     selectedServices: [],
+    selectedProfessionalId: '',
     totalPrice: 0,
     paymentMethod: 'pix',
     selectedDate: '',
@@ -424,6 +426,40 @@ function applyPaymentAvailability(profile) {
     updateUI();
 }
 
+
+async function loadProfessionals() {
+    const select = document.getElementById('professional-select');
+
+    if (!select) return;
+
+    try {
+        const { data, error } = await supabaseClient
+            .from('professionals')
+            .select('id, name, is_active, sort_order')
+            .eq('is_active', true)
+            .order('sort_order', { ascending: true })
+            .order('name', { ascending: true });
+
+        if (error) throw error;
+
+        state.professionals = Array.isArray(data) ? data : [];
+
+        select.innerHTML = '<option value="">Qualquer profissional</option>';
+
+        state.professionals.forEach((professional) => {
+            const option = document.createElement('option');
+            option.value = professional.id;
+            option.textContent = professional.name;
+            select.appendChild(option);
+        });
+
+        select.value = state.selectedProfessionalId || '';
+    } catch (error) {
+        console.error('Erro ao carregar profissionais:', error);
+        select.innerHTML = '<option value="">Qualquer profissional</option>';
+    }
+}
+
 async function loadServices() {
     const grid = document.getElementById('service-grid');
     const loading = document.getElementById('services-loading');
@@ -642,6 +678,7 @@ async function createReservation() {
             selected_services: state.selectedServices,
             total_price: state.totalPrice,
             payment_method: paymentMethod,
+            professional_id: state.selectedProfessionalId || null,
             appointment_start: appointmentStart,
             appointment_end: appointmentEnd
         })
@@ -751,10 +788,13 @@ function resetBookingForm() {
     state.selectedSlot = null;
     state.availabilitySlots = [];
     state.selectedDate = '';
+    state.selectedProfessionalId = '';
 
     document.getElementById('client-name').value = '';
     document.getElementById('client-phone').value = '';
     document.getElementById('appointment-date').value = '';
+    const professionalSelect = document.getElementById('professional-select');
+    if (professionalSelect) professionalSelect.value = '';
 
     setAvailability('idle', 'Selecione uma data para ver horários');
     renderServices();
@@ -800,6 +840,7 @@ async function initializePage() {
     updatePaymentMessage();
     updateUI();
     await loadBarbershopProfile();
+    await loadProfessionals();
     await loadServices();
 }
 

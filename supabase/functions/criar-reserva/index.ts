@@ -10,6 +10,7 @@ type CreateReservationPayload = {
   payment_method: PaymentMethod;
   appointment_start: string;
   appointment_end: string;
+  professional_id?: string | null;
 };
 
 const corsHeaders = {
