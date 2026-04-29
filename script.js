@@ -670,7 +670,9 @@ async function createReservation() {
     const response = await fetch(`${supabaseUrl}/functions/v1/criar-reserva`, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'apikey': supabaseAnonKey,
+            'Authorization': `Bearer ${supabaseAnonKey}`
         },
         body: JSON.stringify({
             client_name: name,
