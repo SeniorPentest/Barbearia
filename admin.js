@@ -286,6 +286,12 @@ async function loadAppointments() {
             paid_at,
             completed_at,
             admin_notes,
+            professional_id,
+            professionals (
+                id,
+                name,
+                commission_percent
+            ),
             appointment_start,
             appointment_end,
             payment_method,
@@ -347,6 +353,7 @@ function renderAppointments() {
 
                 <div class="appointment-service" data-label="Serviço">
                     <strong>${escapeHtml(services)}</strong>
+                    <span>Profissional: ${escapeHtml(appointment.professionals?.name || 'Não definido')}</span>
                     <span>ID: ${escapeHtml(appointment.id)}</span>
                 </div>
 
