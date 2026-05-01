@@ -316,6 +316,10 @@ async function loadAppointments() {
 
     state.appointments = Array.isArray(data) ? data : [];
 
+    if (!state.professionals.length) {
+        await loadProfessionals();
+    }
+
     renderAppointments();
     updateStats(state.appointments);
     setLoadStatus(`${state.appointments.length} reserva(s) encontrada(s).`);
@@ -1289,6 +1293,8 @@ async function initializeAdmin() {
 
         await loadProfessionals();
 
+        await loadProfessionals();
+
         await Promise.all([
             loadAppointments(),
             loadAdminServices(),
@@ -1343,6 +1349,8 @@ loginForm.addEventListener('submit', async (event) => {
         if (!filterDate.value) {
             setTodayOnFilter();
         }
+
+        await loadProfessionals();
 
         await loadProfessionals();
 
