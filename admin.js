@@ -141,6 +141,21 @@ function getProfessionalById(professionalId) {
         || null;
 }
 
+
+function calculateCommission(appointment) {
+    const professional = getProfessionalById(appointment.professional_id);
+    const percent = Number(professional?.commission_percent || 0);
+    const baseValue = Number(appointment.final_total ?? appointment.total_price ?? 0);
+    const commissionValue = baseValue * (percent / 100);
+    const shopValue = baseValue - commissionValue;
+
+    return {
+        percent,
+        commissionValue,
+        shopValue
+    };
+}
+
 function formatProfessionalName(professionalId) {
     if (!professionalId) return 'Não definido';
 
@@ -373,6 +388,10 @@ function renderAppointments() {
                 <div class="appointment-service" data-label="Serviço">
                     <strong>${escapeHtml(services)}</strong>
                     <span>Profissional: ${escapeHtml(formatProfessionalName(appointment.professional_id))}</span>
+                    ${appointment.professional_id ? (() => {
+                        const commission = calculateCommission(appointment);
+                        return `<span>Comissão: ${commission.percent.toFixed(2).replace('.', ',')}% • ${formatCurrency(commission.commissionValue)} | Barbearia: ${formatCurrency(commission.shopValue)}</span>`;
+                    })() : ''}
                     <span>ID: ${escapeHtml(appointment.id)}</span>
                 </div>
 
