@@ -628,6 +628,11 @@ function updateUI() {
     }
 }
 
+document.getElementById('professional-select')?.addEventListener('change', (event) => {
+    state.selectedProfessionalId = event.target.value || '';
+    updateUI();
+});
+
 document.getElementById('appointment-date')?.addEventListener('change', async (event) => {
     state.selectedDate = event.target.value;
     await loadAvailabilityByDate(state.selectedDate);
@@ -666,6 +671,8 @@ async function createReservation() {
 
     const appointmentStart = normalizeDateTimeWithOffset(state.selectedSlot.start);
     const appointmentEnd = normalizeDateTimeWithOffset(state.selectedSlot.end);
+    const professionalSelect = document.getElementById('professional-select');
+    const selectedProfessionalId = professionalSelect?.value || state.selectedProfessionalId || '';
 
     const response = await fetch(`${supabaseUrl}/functions/v1/criar-reserva`, {
         method: 'POST',
@@ -680,7 +687,7 @@ async function createReservation() {
             selected_services: state.selectedServices,
             total_price: state.totalPrice,
             payment_method: paymentMethod,
-            professional_id: state.selectedProfessionalId || null,
+            professional_id: selectedProfessionalId || null,
             appointment_start: appointmentStart,
             appointment_end: appointmentEnd
         })
